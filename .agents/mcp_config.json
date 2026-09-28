@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "funchole": {
+      "serverUrl": "https://app.funchole.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer fh_mcp_hAXTNCxkU39nP4w4uBzzGlWrVyQh0VOCD7g2oEEK_mM"
+      }
+    }
+  }
+}

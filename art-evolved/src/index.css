@@ -1,0 +1,397 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 239 236 230;
+  --fg: 22 21 20;
+  --accent: 224 72 47;
+  --panel: 239 236 230;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background: rgb(var(--bg));
+  color: rgb(var(--fg));
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: 'Inter Tight', 'Helvetica Neue', Arial, sans-serif;
+  transition: background-color 1.2s var(--ease), color 1.2s var(--ease);
+}
+
+.mobile-root,
+.mobile-root body,
+.mobile-root #root {
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: auto;
+  min-height: 100%;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 1px solid rgb(var(--accent));
+  outline-offset: 3px;
+}
+
+::selection {
+  background: rgb(var(--accent));
+  color: rgb(var(--bg));
+}
+
+.sr-only-focusable:not(:focus) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+/* ───────────────────────────── primitives */
+
+.hud-text,
+.museum-btn,
+.museum-pop,
+.museum-panel {
+  transition: color 1.2s var(--ease), background-color 1.2s var(--ease), border-color 1.2s var(--ease), opacity 0.6s var(--ease), transform 0.6s var(--ease);
+}
+
+.museum-panel {
+  background: rgb(var(--panel) / 0.94);
+  border: 1px solid rgb(var(--fg) / 0.14);
+}
+
+.museum-btn::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border: 1px solid transparent;
+  transition: inset 0.4s var(--ease), border-color 0.4s var(--ease);
+  pointer-events: none;
+}
+.museum-btn:hover::after {
+  inset: -5px;
+  border-color: rgb(var(--fg) / 0.2);
+}
+
+.grain {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  opacity: 0.07;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.progress-glyphs {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  letter-spacing: -0.04em;
+}
+
+.tick {
+  transition: height 0.5s var(--ease), background-color 0.5s var(--ease), opacity 0.5s var(--ease);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes sheet-in-right {
+  from {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes sheet-out-right {
+  to {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+}
+@keyframes sheet-in-left {
+  from {
+    transform: translateX(-40px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes sheet-out-left {
+  to {
+    transform: translateX(-40px);
+    opacity: 0;
+  }
+}
+@keyframes sheet-in-bottom {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes glitch-shift {
+  0%,
+  92%,
+  100% {
+    transform: none;
+    clip-path: none;
+  }
+  93% {
+    transform: translateX(-3px);
+    clip-path: inset(10% 0 60% 0);
+  }
+  95% {
+    transform: translateX(4px);
+    clip-path: inset(50% 0 20% 0);
+  }
+  97% {
+    transform: translateX(-2px);
+  }
+}
+@keyframes border-flow {
+  to {
+    background-position: 200% 0;
+  }
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.animate-rise {
+  animation: rise 0.9s var(--ease) both;
+}
+.animate-fade {
+  animation: fade 0.8s var(--ease) both;
+}
+.animate-sheet-in-right {
+  animation: sheet-in-right 0.6s var(--ease) both;
+}
+.animate-sheet-out-right {
+  animation: sheet-out-right 0.35s var(--ease) both;
+}
+.animate-sheet-in-left {
+  animation: sheet-in-left 0.6s var(--ease) both;
+}
+.animate-sheet-out-left {
+  animation: sheet-out-left 0.35s var(--ease) both;
+}
+.animate-sheet-in-bottom {
+  animation: sheet-in-bottom 0.6s var(--ease) both;
+}
+.museum-overlay[data-state='open'],
+.museum-dialog[data-state='open'] {
+  animation: fade 0.4s var(--ease) both;
+}
+
+/* ───────────────────────────── the interface evolves with the chamber */
+
+/* Stone: rough, weighty, earth-toned. */
+[data-ui='stone'] .museum-panel {
+  border-radius: 2px 18px 4px 14px / 12px 3px 16px 4px;
+}
+[data-ui='stone'] .hud-title {
+  letter-spacing: 0.34em;
+}
+
+/* Gilded: serif authority, hairline gold. */
+[data-ui='gilded'] .hud-title,
+[data-ui='gilded'] .panel-heading {
+  font-family: 'Instrument Serif', Georgia, serif;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  font-size: 1.1em;
+}
+[data-ui='gilded'] .museum-panel {
+  border-color: rgb(var(--accent) / 0.55);
+  box-shadow: inset 0 0 0 4px rgb(var(--panel)), inset 0 0 0 5px rgb(var(--accent) / 0.35);
+}
+
+/* Ink: vertical writing, seal-red accent, vast margins (ma). */
+[data-ui='ink'] .hud-era-name {
+  writing-mode: vertical-rl;
+  letter-spacing: 0.5em;
+}
+[data-ui='ink'] .museum-panel {
+  border: none;
+  border-left: 1px solid rgb(var(--fg) / 0.5);
+  background: rgb(var(--panel) / 0.86);
+}
+[data-ui='ink'] .panel-seal {
+  display: block;
+}
+[data-ui='ink'] .hud-bottom {
+  opacity: 0.75;
+}
+
+/* Fragment: Cubist — the layout breaks into planes seen from different angles. */
+[data-ui='fragment'] .museum-panel {
+  clip-path: polygon(0 2%, 96% 0, 100% 45%, 98% 100%, 3% 97%, 1% 55%);
+  transform: rotate(-0.8deg);
+}
+[data-ui='fragment'] .panel-section:nth-child(odd) {
+  transform: translateX(10px) rotate(0.6deg);
+}
+[data-ui='fragment'] .panel-section:nth-child(even) {
+  transform: translateX(-6px) rotate(-0.5deg);
+  background: rgb(var(--fg) / 0.04);
+}
+[data-ui='fragment'] .hud-title {
+  transform: skewX(-8deg);
+}
+
+/* Dream: floating, soft, slightly adrift. */
+[data-ui='dream'] .museum-panel {
+  border-radius: 28px;
+  border-color: rgb(var(--fg) / 0.08);
+  animation: dream-float 9s ease-in-out infinite;
+}
+[data-ui='dream'] .panel-heading {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+@keyframes dream-float {
+  50% {
+    transform: translateY(-6px) rotate(0.3deg);
+  }
+}
+
+/* Void: Minimalism — the interface all but disappears. */
+[data-ui='void'][data-idle='true'] .hud-chrome {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+[data-ui='void'] .hud-chrome {
+  transition: opacity 2.4s var(--ease);
+}
+[data-ui='void'] .progress-glyphs,
+[data-ui='void'] .hud-ticks {
+  opacity: 0.25;
+}
+[data-ui='void'] .museum-panel {
+  border-color: transparent;
+  background: rgb(var(--panel) / 0.7);
+}
+
+/* Mono: ASCII / dither — typography becomes the artwork. */
+[data-ui='mono'] body,
+[data-ui='mono'] .hud-chrome,
+[data-ui='mono'] .museum-panel,
+[data-ui='mono'] .museum-btn {
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+}
+[data-ui='mono'] .museum-panel {
+  border-style: dashed;
+}
+[data-ui='mono'] .hud-title::before {
+  content: '> ';
+}
+[data-ui='mono'] .hud-title::after {
+  content: '_';
+  animation: blink 1s steps(1) infinite;
+}
+
+/* Pixel: the whole interface quantises. */
+[data-ui='pixel'] .hud-chrome,
+[data-ui='pixel'] .museum-panel,
+[data-ui='pixel'] .museum-btn,
+[data-ui='pixel'] .panel-heading {
+  font-family: Silkscreen, 'JetBrains Mono', monospace !important;
+  letter-spacing: 0.04em;
+}
+[data-ui='pixel'] .museum-panel,
+[data-ui='pixel'] .museum-btn {
+  border-width: 3px;
+  box-shadow: 4px 4px 0 rgb(var(--fg));
+  clip-path: polygon(0 4px, 4px 4px, 4px 0, calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px));
+}
+
+/* Pop: heavy ink, halftone, loud. */
+[data-ui='pop'] .museum-panel {
+  border: 3px solid rgb(var(--fg));
+  box-shadow: 8px 8px 0 rgb(var(--accent));
+  background-image: radial-gradient(rgb(var(--accent) / 0.16) 1.2px, transparent 1.4px);
+  background-size: 9px 9px;
+}
+[data-ui='pop'] .hud-title,
+[data-ui='pop'] .panel-heading {
+  font-weight: 900;
+  font-style: italic;
+}
+
+/* Glitch: controlled breakage. */
+[data-ui='glitch'] .hud-title,
+[data-ui='glitch'] .panel-heading {
+  text-shadow: 2px 0 rgb(255 42 109 / 0.8), -2px 0 rgb(5 217 232 / 0.8);
+  animation: glitch-shift 3.2s steps(1) infinite;
+}
+[data-ui='glitch'] .museum-panel {
+  border-color: rgb(var(--accent));
+}
+
+/* Generative: the interface itself is continuously generated. */
+[data-ui='generative'] .museum-panel {
+  border: 1px solid transparent;
+  background: linear-gradient(rgb(var(--panel) / 0.94), rgb(var(--panel) / 0.94)) padding-box,
+    linear-gradient(90deg, rgb(var(--accent)), rgb(var(--fg) / 0.1), rgb(var(--accent)), rgb(var(--fg) / 0.1)) border-box;
+  background-size: 100% 100%, 200% 100%;
+  animation: border-flow 6s linear infinite;
+}
+
+/* Grid: Bauhaus / De Stijl — strict orthogonal structure. */
+[data-ui='grid'] .museum-panel {
+  border: 3px solid rgb(var(--fg));
+  box-shadow: inset 0 6px 0 rgb(var(--accent));
+}
+[data-ui='grid'] .panel-section {
+  border-top: 3px solid rgb(var(--fg));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.2s !important;
+  }
+}
