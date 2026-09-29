@@ -1,8 +1,11 @@
 import { useStore } from '@/state/store'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 
-export const FILM_SRC = `${import.meta.env.BASE_URL}media/art-evolved-film.mp4`
-export const FILM_POSTER = `${import.meta.env.BASE_URL}media/art-evolved-film-poster.jpg`
+const CDN_FILM_SRC = 'https://raw.githubusercontent.com/nibir404/Lords_of_Lullabies/main/art-evolved/public/media/art-evolved-film.mp4'
+const CDN_FILM_POSTER = 'https://raw.githubusercontent.com/nibir404/Lords_of_Lullabies/main/art-evolved/public/media/art-evolved-film-poster.jpg'
+
+export const FILM_SRC = CDN_FILM_SRC
+export const FILM_POSTER = CDN_FILM_POSTER
 
 // Open state lives in the store, so Radix has no Trigger to hand focus back to on close.
 let opener: HTMLElement | null = null
