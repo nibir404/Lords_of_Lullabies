@@ -85,8 +85,10 @@ cd art-evolved && npm run build
 
 ## 6. Evolution & Decision Log
 
-### 2026-09-29: Parallel Shader Precompilation & Movement Histories Expansion
+### 2026-09-29: Parallel Shader Precompilation, Movement Histories & Documentation Expansion
 - **Precompiled Shader Engine**: Added `Precompiled.tsx` and `visibility.ts` to solve WebGL program linking frame drops during chamber switching.
 - **Movement Histories**: Added `histories.ts` containing comprehensive founding records and pioneer archives for art movements across global cultures.
 - **Scene Refinements**: Enriched procedural meshes, lighting, and materials across `temple`, `monument`, `pattern`, `ink`, `street`, `gothic`, and `generative` chambers.
+- **Documentation**: Crafted comprehensive root `README.md` and updated `art-evolved/README.md` with architectural blueprints, control cheatsheets, live exhibition links, and technology badges.
 - **Cloud Deployment**: Successfully deployed FunctionVersion `v2` on Funchole and adopted Gateway Flow `v5` serving live on `https://5zyu0p.funchole.dev/`.
+

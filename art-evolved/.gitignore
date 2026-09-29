@@ -9,3 +9,6 @@ dist/
 
 # OS
 .DS_Store
+
+# Temporary b64 cache
+*.b64

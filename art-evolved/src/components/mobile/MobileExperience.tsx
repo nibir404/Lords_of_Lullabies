@@ -4,6 +4,7 @@ import { ARTIST_BY_ID } from '@/data/artists'
 import { ERAS, formatSpan } from '@/data/eras'
 import { HISTORIES } from '@/data/histories'
 import { useStore } from '@/state/store'
+import { FilmButton } from '@/components/hud/FilmDialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ProceduralCanvas } from '@/components/hud/ProceduralCanvas'
@@ -156,6 +157,7 @@ export default function MobileExperience({ fallback }: { fallback?: boolean }) {
             Create
           </Button>
         </div>
+        <FilmButton className="mt-5" />
       </section>
       <main>
         {ERAS.map((era) => {

@@ -6,6 +6,7 @@ import { Loader } from '@/components/hud/Loader'
 import { SearchCommand } from '@/components/hud/SearchCommand'
 import { MenuSheet } from '@/components/hud/MenuSheet'
 import { ArtistSheet, ArtistsIndex } from '@/components/hud/ArtistSheet'
+import { FilmDialog } from '@/components/hud/FilmDialog'
 import { SeoContent } from '@/components/SeoContent'
 import { useEnvironment } from '@/hooks/useEnvironment'
 import { useThemeSync } from '@/hooks/useThemeSync'
@@ -95,6 +96,7 @@ export default function App() {
       <MenuSheet />
       <ArtistSheet />
       <ArtistsIndex />
+      <FilmDialog />
       <div className="grain" aria-hidden />
       <SeoContent />
     </TooltipProvider>

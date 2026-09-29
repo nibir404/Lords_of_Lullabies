@@ -3,6 +3,7 @@ import { useStore } from '@/state/store'
 import { world } from '@/state/world'
 import { Button } from '@/components/ui/button'
 import { useWorldValue } from '@/hooks/useWorldValue'
+import { FilmButton } from './FilmDialog'
 
 export function LandingOverlay() {
   const setView = useStore((s) => s.setView)
@@ -34,6 +35,7 @@ export function LandingOverlay() {
             Explore timeline
           </Button>
         </div>
+        <FilmButton className="mt-5" />
       </div>
       <div className="pointer-events-none absolute bottom-10 right-5 hidden text-right md:right-10 md:bottom-14 md:block">
         <div className="font-mono text-[11px] uppercase tracking-museum text-muted">Sculpture · form {String(stage + 1).padStart(2, '0')} / {SCULPTURE_STAGES.length}</div>

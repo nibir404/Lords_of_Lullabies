@@ -19,7 +19,7 @@ export function useKeyboard() {
         s.setSearchOpen(!s.searchOpen)
         return
       }
-      const modal = s.searchOpen || s.menuOpen || s.artistId !== null || s.artistsOpen
+      const modal = s.searchOpen || s.menuOpen || s.artistId !== null || s.artistsOpen || s.filmOpen
       if (modal || isTyping(document.activeElement)) return
       if (s.view === 'create') {
         if (e.key === 'Escape') s.setView('timeline')

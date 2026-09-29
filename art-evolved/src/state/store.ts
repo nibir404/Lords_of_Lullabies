@@ -46,6 +46,7 @@ interface State {
   searchOpen: boolean
   menuOpen: boolean
   artistsOpen: boolean
+  filmOpen: boolean
   artistId: string | null
   surprise: Surprise | null
   instruments: Instruments
@@ -70,6 +71,7 @@ interface State {
   setSearchOpen: (v: boolean) => void
   setMenuOpen: (v: boolean) => void
   setArtistsOpen: (v: boolean) => void
+  setFilmOpen: (v: boolean) => void
   openArtist: (id: string | null) => void
   surpriseMe: () => void
   clearSurprise: () => void
@@ -100,6 +102,7 @@ export const useStore = create<State>((set, get) => ({
   searchOpen: false,
   menuOpen: false,
   artistsOpen: false,
+  filmOpen: false,
   artistId: null,
   surprise: null,
   instruments: structuredClone(DEFAULT_INSTRUMENTS),
@@ -143,6 +146,7 @@ export const useStore = create<State>((set, get) => ({
   setSearchOpen: (v) => set({ searchOpen: v }),
   setMenuOpen: (v) => set({ menuOpen: v }),
   setArtistsOpen: (v) => set({ artistsOpen: v }),
+  setFilmOpen: (v) => set({ filmOpen: v }),
   openArtist: (id) => set({ artistId: id }),
   surpriseMe: () => {
     const cur = get().activeIndex

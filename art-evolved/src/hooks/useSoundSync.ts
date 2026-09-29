@@ -15,7 +15,8 @@ const VIEW_SOUND: Record<Exclude<ViewId, 'timeline'>, SoundProfile> = {
 }
 
 export function useSoundSync() {
-  const sound = useStore((s) => s.sound)
+  // The film has its own soundtrack, so the ambient score pauses while it plays.
+  const sound = useStore((s) => s.sound && !s.filmOpen)
   const view = useStore((s) => s.view)
   const index = useStore((s) => s.activeIndex)
   const profile: SoundProfile = view === 'timeline' ? MOVEMENTS[index].visual.sound : VIEW_SOUND[view]
