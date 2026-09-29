@@ -190,9 +190,44 @@ export function LightShaft({ position, rotation = [0, 0, 0], radiusTop = 0.6, ra
   return <mesh geometry={geometry} material={material} position={position} rotation={rotation} />
 }
 
+const shared = new Map<string, { value: { dispose: () => void }; users: number }>()
+
+/**
+ * Like useDisposable, but identical resources (same key) are built once and shared between every
+ * component using them; disposed when the last one unmounts. A colonnade builds one shaft, not twenty.
+ */
+export function useSharedDisposable<T extends { dispose: () => void }>(key: string, factory: () => T): T {
+  const value = useMemo(() => {
+    let entry = shared.get(key)
+    if (!entry) {
+      entry = { value: factory(), users: 0 }
+      shared.set(key, entry)
+    }
+    return entry.value as T
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key])
+  useEffect(() => {
+    const entry = shared.get(key)
+    if (!entry || entry.value !== value) return
+    entry.users++
+    return () => {
+      entry.users--
+      if (entry.users > 0) return
+      // Defer, so a remount in the same commit (StrictMode, keyed swaps) can pick it up again.
+      queueMicrotask(() => {
+        if (entry.users === 0 && shared.get(key) === entry) {
+          shared.delete(key)
+          entry.value.dispose()
+        }
+      })
+    }
+  }, [key, value])
+  return value
+}
+
 /** Fluted, slightly swelling (entasis) column shaft. */
 export function useColumnGeometry(radius: number, height: number, flutes = 20, entasis = 0.04) {
-  return useDisposable(() => {
+  return useSharedDisposable(`column:${radius}:${height}:${flutes}:${entasis}`, () => {
     const g = new CylinderGeometry(radius * 0.86, radius, height, Math.max(24, flutes * 4), 24)
     const p = g.attributes.position as BufferAttribute
     for (let i = 0; i < p.count; i++) {
@@ -208,7 +243,7 @@ export function useColumnGeometry(radius: number, height: number, flutes = 20, e
     }
     g.computeVertexNormals()
     return g
-  }, [radius, height, flutes, entasis])
+  })
 }
 
 export function Column({ position, height = 8, radius = 0.5, color = '#efe8dc', order = 'doric', flutes = 20 }: {
@@ -220,13 +255,13 @@ export function Column({ position, height = 8, radius = 0.5, color = '#efe8dc', 
   flutes?: number
 }) {
   const shaft = useColumnGeometry(radius, height, order === 'plain' ? 0 : flutes)
-  const capital = useDisposable(() => {
+  const capital = useSharedDisposable(`capital:${order}:${radius}:${height}`, () => {
     if (order === 'papyrus') {
       const pts = [new Vector2(radius * 0.86, 0), new Vector2(radius * 1.5, height * 0.08), new Vector2(radius * 1.9, height * 0.16), new Vector2(radius * 1.6, height * 0.18)]
       return new LatheGeometry(pts, 32)
     }
     return new CylinderGeometry(radius * 1.3, radius * 0.9, radius * 0.6, 32)
-  }, [order, radius, height])
+  })
   return (
     <group position={position}>
       <mesh geometry={shaft} position={[0, height / 2, 0]}>

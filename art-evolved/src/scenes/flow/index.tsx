@@ -1,11 +1,12 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { Color, FloatType, HalfFloatType, InstancedBufferAttribute, InstancedBufferGeometry, PlaneGeometry, Vector3, type WebGLRenderer } from 'three'
+import { Color, DoubleSide, FloatType, Group, HalfFloatType, Shape, ShapeGeometry, InstancedBufferAttribute, InstancedBufferGeometry, PlaneGeometry, Vector3, type WebGLRenderer } from 'three'
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer.js'
 import { NOISE_GLSL } from '@/shaders/noise'
 import type { SceneProps } from '../types'
 import { Motes, useDisposable, usePalette } from '../shared'
 import { FOG_TAIL, sceneShader } from '../glsl'
+import { isShown } from '@/utils/visibility'
 
 /*
  * GPGPU particle field. A velocity pass evaluates a turbulent vector field (curl noise plus a few
@@ -94,11 +95,65 @@ function useParticleSim(gl: WebGLRenderer, size: number, jagged: boolean, swirl:
   return sim
 }
 
+/** Matisse's Fauvist room: a flat red wall, a window of pure colour and drifting paper cut-outs. */
+function FauveRoom({ colors }: { colors: string[] }) {
+  const leaf = useDisposable(() => {
+    const sh = new Shape()
+    sh.moveTo(0, -1.4)
+    sh.bezierCurveTo(0.9, -0.9, 0.3, -0.3, 0.9, 0.1)
+    sh.bezierCurveTo(1.3, 0.5, 0.4, 0.7, 0.7, 1.3)
+    sh.bezierCurveTo(0.2, 1.1, 0.1, 0.8, 0, 1.5)
+    sh.bezierCurveTo(-0.1, 0.8, -0.3, 1.1, -0.8, 1.2)
+    sh.bezierCurveTo(-0.4, 0.6, -1.3, 0.4, -0.9, 0)
+    sh.bezierCurveTo(-0.3, -0.3, -0.9, -0.9, 0, -1.4)
+    return new ShapeGeometry(sh, 24)
+  }, [])
+  const g = useRef<Group>(null)
+  useFrame((st) => {
+    g.current?.children.forEach((c, i) => {
+      c.rotation.z = Math.sin(st.clock.elapsedTime * 0.3 + i) * 0.35
+      c.position.y = [7, 4, 9.5, 5.5, 8][i % 5] + Math.sin(st.clock.elapsedTime * 0.4 + i * 1.7) * 0.4
+    })
+  })
+  return (
+    <group position={[0, 0, -14]}>
+      <mesh position={[0, 8, -0.2]}>
+        <planeGeometry args={[46, 18]} />
+        <meshBasicMaterial color={colors[0]} />
+      </mesh>
+      <mesh position={[7, 8.5, 0]}>
+        <planeGeometry args={[7, 8]} />
+        <meshBasicMaterial color={colors[2]} />
+      </mesh>
+      <mesh position={[7, 6, 0.02]}>
+        <planeGeometry args={[7, 3]} />
+        <meshBasicMaterial color={colors[1]} />
+      </mesh>
+      <mesh position={[7, 8.5, 0.03]}>
+        <planeGeometry args={[7.6, 0.25]} />
+        <meshBasicMaterial color="#f7efe0" />
+      </mesh>
+      <mesh position={[7, 8.5, 0.03]}>
+        <planeGeometry args={[0.25, 8.6]} />
+        <meshBasicMaterial color="#f7efe0" />
+      </mesh>
+      <group ref={g}>
+        {[-9, -4.5, -12, -1, 12].map((x, i) => (
+          <mesh key={x} geometry={leaf} position={[x, 6, 1 + i * 0.3]} scale={1.3 + (i % 3) * 0.35}>
+            <meshBasicMaterial color={[colors[1], colors[3] ?? '#1f3c88', '#f7efe0', colors[2], colors[3] ?? '#1f3c88'][i]} side={DoubleSide} />
+          </mesh>
+        ))}
+      </group>
+    </group>
+  )
+}
+
 export default function FlowScene({ movement, quality }: SceneProps) {
   const gl = useThree((s) => s.gl)
   const pal = usePalette(movement)
   const v = movement.visual.variant ?? 'swirl'
-  const size = quality > 0.8 ? 128 : quality > 0.5 ? 96 : 64
+  // Fauvism is about broad flat colour, so its stroke field is sparser.
+  const size = (quality > 0.8 ? 128 : quality > 0.5 ? 96 : 64) / (v === 'fauve' ? 4 : 1)
   const sim = useParticleSim(gl, size, v === 'jagged', v === 'fauve' ? 0.35 : v === 'jagged' ? 0.6 : 1)
   const count = size * size
 
@@ -172,8 +227,11 @@ export default function FlowScene({ movement, quality }: SceneProps) {
     [colors.join(), v],
   )
 
+  const root = useRef<Group>(null)
   useFrame((s, dt) => {
     if (!sim.ok) return
+    // No need to advance the simulation while the chamber is hidden; it resumes where it was.
+    if (material.uniforms.tPos.value && !isShown(root.current)) return
     const t = s.clock.elapsedTime
     sim.velVar.material.uniforms.uTime.value = t
     sim.posVar.material.uniforms.uTime.value = t
@@ -186,7 +244,7 @@ export default function FlowScene({ movement, quality }: SceneProps) {
 
   const shards = useMemo(() => Array.from({ length: 9 }, (_, i) => ({ x: -14 + i * 3.5, h: 4 + ((i * 37) % 7), r: ((i % 3) - 1) * 0.25 })), [])
   return (
-    <group>
+    <group ref={root}>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, -8]}>
         <planeGeometry args={[140, 80]} />
         <meshStandardMaterial color={pal.bg.clone().multiplyScalar(1.3)} roughness={1} />
@@ -206,6 +264,7 @@ export default function FlowScene({ movement, quality }: SceneProps) {
           ))}
         </group>
       )}
+      {v === 'fauve' && <FauveRoom colors={movement.visual.palette.colors} />}
       {v === 'jagged' &&
         shards.map((sh, i) => (
           <mesh key={i} position={[sh.x, sh.h / 2, -16 + (i % 3) * 2]} rotation={[0, 0.2 * i, sh.r]}>

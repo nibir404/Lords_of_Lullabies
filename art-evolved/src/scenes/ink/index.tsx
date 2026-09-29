@@ -185,14 +185,101 @@ function Vessel({ profile, color, position, scale = 1 }: { profile: [number, num
 const MOON_JAR: [number, number][] = [[0.01, 0], [0.55, 0.02], [0.9, 0.35], [1.12, 0.95], [1.05, 1.45], [0.7, 1.85], [0.6, 1.95], [0.62, 2.0]]
 const MAEBYEONG: [number, number][] = [[0.01, 0], [0.4, 0.02], [0.45, 0.6], [0.75, 1.6], [0.8, 2.0], [0.5, 2.4], [0.2, 2.55], [0.25, 2.7]]
 
+/** Six-panel gold folding screen (byōbu) with irises, after Ogata Kōrin. */
+function IrisScreen({ gold, petal, leaf }: { gold: string; petal: string; leaf: string }) {
+  const panels = 6
+  const w = 3.8
+  const flowers = useMemo(() => {
+    const out: { panel: number; x: number; y: number; s: number }[] = []
+    for (let p = 0; p < panels; p++) for (let k = 0; k < 4; k++) out.push({ panel: p, x: (((p * 7 + k * 3) % 5) / 5 - 0.4) * w * 0.8, y: 1.6 + ((p + k * 2) % 4) * 1.1, s: 0.8 + ((p * 3 + k) % 3) * 0.18 })
+    return out
+  }, [])
+  return (
+    <group position={[0, 0, -9]}>
+      {Array.from({ length: panels }, (_, p) => {
+        const x = (p - (panels - 1) / 2) * w * 0.94
+        const rot = p % 2 ? -0.32 : 0.32
+        return (
+          <group key={p} position={[x, 0, p % 2 ? -0.6 : 0]} rotation={[0, rot, 0]}>
+            <mesh position={[0, 4.2, 0]}>
+              <boxGeometry args={[w, 8.4, 0.12]} />
+              <meshStandardMaterial color={gold} metalness={0.75} roughness={0.35} />
+            </mesh>
+            <mesh position={[0, 4.2, -0.02]}>
+              <boxGeometry args={[w + 0.2, 8.6, 0.1]} />
+              <meshStandardMaterial color="#2a1c14" roughness={0.6} />
+            </mesh>
+            {flowers
+              .filter((f) => f.panel === p)
+              .map((f, i) => (
+                <group key={i} position={[f.x, f.y, 0.1]} scale={f.s}>
+                  {[0, 1, 2].map((k) => (
+                    <mesh key={k} position={[Math.cos(k * 2.1) * 0.22, 0.25 + Math.sin(k * 2.1) * 0.18, 0]} scale={[0.22, 0.34, 0.08]} rotation={[0, 0, k * 2.1]}>
+                      <sphereGeometry args={[1, 12, 8]} />
+                      <meshStandardMaterial color={petal} roughness={0.6} />
+                    </mesh>
+                  ))}
+                  {[-0.2, 0, 0.18].map((lx, k) => (
+                    <mesh key={k} position={[lx, -0.7, 0]} rotation={[0, 0, lx * 0.8]}>
+                      <boxGeometry args={[0.07, 1.6, 0.02]} />
+                      <meshStandardMaterial color={leaf} roughness={0.7} />
+                    </mesh>
+                  ))}
+                </group>
+              ))}
+          </group>
+        )
+      })}
+    </group>
+  )
+}
+
+/** A stylised pine: trunk and layered, flattened canopies. */
+function Pine({ position, color, scale = 1 }: { position: [number, number, number]; color: string; scale?: number }) {
+  return (
+    <group position={position} scale={scale}>
+      <mesh position={[0, 2, 0]} rotation={[0, 0, 0.12]}>
+        <cylinderGeometry args={[0.1, 0.18, 4, 6]} />
+        <meshBasicMaterial color={color} />
+      </mesh>
+      {[
+        [0.3, 3.9, 1.3],
+        [-0.5, 3.1, 1.0],
+        [0.6, 2.4, 0.8],
+      ].map(([x, y, r], i) => (
+        <mesh key={i} position={[x, y, 0]} scale={[r, r * 0.28, r * 0.6]}>
+          <sphereGeometry args={[1, 14, 8]} />
+          <meshBasicMaterial color={color} transparent opacity={0.85} />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
+function Pavilion({ position, color }: { position: [number, number, number]; color: string }) {
+  return (
+    <group position={position}>
+      {[-0.5, 0.5].map((x) => (
+        <mesh key={x} position={[x, 0.5, 0]}>
+          <boxGeometry args={[0.07, 1, 0.07]} />
+          <meshBasicMaterial color={color} />
+        </mesh>
+      ))}
+      <mesh position={[0, 1.2, 0]} rotation={[0, Math.PI / 4, 0]}>
+        <coneGeometry args={[1.05, 0.55, 4]} />
+        <meshBasicMaterial color={color} />
+      </mesh>
+    </group>
+  )
+}
+
 export default function InkScene({ movement, quality }: SceneProps) {
   const pal = usePalette(movement)
   const rng = useSeed(movement)
   const v = movement.visual.variant ?? 'japanese'
   const ink = movement.visual.palette.ink
-  const showMountains = v === 'mountains' || v === 'japanese' || v === 'korean' || v === 'sumie'
-  const showBamboo = v === 'sumie' || v === 'japanese'
-  const showSun = v === 'japanese' || v === 'ukiyo'
+  const showMountains = v === 'mountains' || v === 'korean'
+  const showSun = v === 'ukiyo'
   return (
     <group>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, -8]}>
@@ -200,21 +287,66 @@ export default function InkScene({ movement, quality }: SceneProps) {
         <meshBasicMaterial color={pal.bg} />
       </mesh>
       {showMountains &&
-        [0, 1, 2, 3].map((i) => (
-          <MountainLayer key={i} z={-12 - i * 9} x={(i % 2 ? 4 : -6) + (v === 'mountains' ? 0 : -4)} width={50 + i * 10} height={14 + i * 6} color={ink} opacity={0.75 - i * 0.16} seed={i * 3.1 + 1} />
+        (v === 'mountains' ? [0, 1, 2, 3] : [1, 2]).map((i) => (
+          <MountainLayer
+            key={i}
+            z={-12 - i * 9}
+            x={v === 'mountains' ? (i % 2 ? 5 : -5) : (i % 2 ? -8 : 7)}
+            // Northern Song peaks tower (tall, narrow); Korean true-view hills are low and rounded.
+            width={v === 'mountains' ? 34 + i * 8 : 60 + i * 10}
+            height={v === 'mountains' ? 22 + i * 7 : 9 + i * 3}
+            color={ink}
+            opacity={0.75 - i * 0.16}
+            seed={i * 3.1 + (v === 'korean' ? 7 : 1)}
+          />
         ))}
+      {v === 'mountains' && (
+        <>
+          <mesh position={[-1.5, 7, -11.8]}>
+            <planeGeometry args={[0.35, 10]} />
+            <meshBasicMaterial color={pal.bg} />
+          </mesh>
+          <Pine position={[6, 0, -4]} color={ink} scale={1.3} />
+          <Pavilion position={[3.2, 0, -5]} color={ink} />
+        </>
+      )}
+      {v === 'korean' && <Pine position={[8, 0, -7]} color={ink} scale={1.6} />}
       {showSun && (
         <mesh position={[9, 11, -30]}>
           <circleGeometry args={[3.2, 64]} />
           <meshBasicMaterial color={pal.hex.accent} />
         </mesh>
       )}
-      {showBamboo && (
-        <group position={[-9, 0, -4]}>
-          <Bamboo x={0} z={0} h={13} lean={0.04} color={ink} rng={rng} />
-          <Bamboo x={1.5} z={-1.5} h={11} lean={-0.05} color={ink} rng={rng} />
-          <Bamboo x={-1.4} z={-3} h={15} lean={0.08} color={ink} rng={rng} />
+      {v === 'ukiyo' && (
+        <group position={[-4, 0, -28]}>
+          <mesh position={[0, 3.2, 0]}>
+            <coneGeometry args={[9, 6.4, 48, 1, true]} />
+            <meshBasicMaterial color={pal.hex.colors[0]} side={DoubleSide} />
+          </mesh>
+          <mesh position={[0, 5.4, 0.05]}>
+            <coneGeometry args={[3.1, 2.2, 48, 1, true]} />
+            <meshBasicMaterial color="#f7f2e6" side={DoubleSide} />
+          </mesh>
         </group>
+      )}
+      {v === 'japanese' && (
+        <>
+          <IrisScreen gold={pal.hex.colors[3] ?? '#d9b45a'} petal="#2f3f93" leaf="#2f6b45" />
+          <mesh position={[8, 10.5, -14]}>
+            <circleGeometry args={[1.8, 64]} />
+            <meshBasicMaterial color={pal.hex.accent} />
+          </mesh>
+        </>
+      )}
+      {v === 'sumie' && (
+        <>
+          <MountainLayer z={-18} x={4} width={30} height={16} color={ink} opacity={0.9} seed={11.3} />
+          <group position={[-7, 0, -4]}>
+            {[0, 1.4, -1.3, 2.6, -2.4].map((x, i) => (
+              <Bamboo key={x} x={x} z={-i * 0.9} h={12 + (i % 3) * 2.5} lean={(i % 2 ? -1 : 1) * 0.05 * (i + 1) * 0.5} color={ink} rng={rng} />
+            ))}
+          </group>
+        </>
       )}
       {v === 'zen' && (
         <>

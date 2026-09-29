@@ -1,8 +1,11 @@
-import { Component, Suspense, useEffect, type ReactNode } from 'react'
+import { Component, Suspense, useEffect, useRef, type ReactNode } from 'react'
+import { useFrame } from '@react-three/fiber'
+import type { Group } from 'three'
 import type { Movement } from '@/data/types'
 import { getScene } from '@/scenes/registry'
 import { useStore } from '@/state/store'
-import { chamberZ } from '@/state/world'
+import { chamberZ, world } from '@/state/world'
+import { Precompile } from './Precompiled'
 
 class SceneBoundary extends Component<{ children: ReactNode; id: string }, { failed: boolean }> {
   state = { failed: false }
@@ -26,24 +29,38 @@ function FallbackChamber() {
   )
 }
 
-function Ready({ id }: { id: string }) {
-  const markReady = useStore((s) => s.markReady)
-  useEffect(() => {
-    markReady(id, true)
-    return () => markReady(id, false)
-  }, [id, markReady])
-  return null
-}
-
-/** Mounts one chamber at its place in the corridor. Scenes are code-split and disposed on unmount. */
+/**
+ * Mounts one chamber at its place in the corridor. Scenes are code-split and disposed on unmount.
+ * A chamber stays hidden until its shaders are compiled, and while it sits in the Timeline's cache
+ * (mounted but out of reach of the camera) it is not drawn at all.
+ */
 export function EraScene({ movement, index, quality }: { movement: Movement; index: number; quality: number }) {
   const Scene = getScene(movement.visual.scene)
+  const ref = useRef<Group>(null)
+  const compiled = useRef(false)
+  const markReady = useStore((s) => s.markReady)
+  useEffect(() => () => markReady(movement.id, false), [movement.id, markReady])
+
+  useFrame(() => {
+    const g = ref.current
+    if (!g) return
+    const view = useStore.getState().view
+    const near = view === 'timeline' || view === 'create' ? Math.abs(index - world.f) <= 1 : true
+    g.visible = compiled.current && near
+  })
+
   return (
-    <group position={[0, 0, chamberZ(index)]}>
+    <group ref={ref} position={[0, 0, chamberZ(index)]} visible={false}>
       <SceneBoundary id={movement.id}>
         <Suspense fallback={null}>
           <Scene movement={movement} quality={quality} />
-          <Ready id={movement.id} />
+          <Precompile
+            target={ref}
+            onReady={() => {
+              compiled.current = true
+              markReady(movement.id, true)
+            }}
+          />
         </Suspense>
       </SceneBoundary>
     </group>

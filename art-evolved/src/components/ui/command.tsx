@@ -12,12 +12,12 @@ export const CommandInput = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => (
   <div className="flex items-center border-b border-fg/15 px-6">
-    <span aria-hidden className="mr-4 font-sans text-[10px] uppercase tracking-museum text-fg/50">
+    <span aria-hidden className="mr-4 font-sans text-[11px] uppercase tracking-museum text-fg/50">
       Search
     </span>
     <CommandPrimitive.Input
       ref={ref}
-      className={cn('h-16 w-full bg-transparent font-serif text-2xl text-fg outline-none placeholder:text-fg/30', className)}
+      className={cn('h-16 w-full bg-transparent font-serif text-2xl text-fg outline-none placeholder:text-fg/55', className)}
       {...props}
     />
   </div>
@@ -38,7 +38,7 @@ export const CommandGroup = React.forwardRef<React.ElementRef<typeof CommandPrim
   ({ className, ...props }, ref) => (
     <CommandPrimitive.Group
       ref={ref}
-      className={cn('overflow-hidden p-1 [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:font-sans [&_[cmdk-group-heading]]:text-[9px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-museum [&_[cmdk-group-heading]]:text-fg/45', className)}
+      className={cn('overflow-hidden p-1 [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:font-sans [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-museum [&_[cmdk-group-heading]]:text-fg/45', className)}
       {...props}
     />
   ),

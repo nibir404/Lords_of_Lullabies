@@ -4,6 +4,7 @@ import { BoxGeometry, Color, InstancedMesh, MeshStandardMaterial, Object3D } fro
 import type { Formation } from '@/utils/formations'
 import { clamp, damp } from '@/utils/math'
 import { useStore } from '@/state/store'
+import { isShown } from '@/utils/visibility'
 
 export interface MorphFieldProps {
   formations: Formation[]
@@ -59,6 +60,9 @@ export function MorphField({ formations, progress, stagger = 0.55, shrink = 0.25
   useFrame((state, rawDt) => {
     const mesh = ref.current
     if (!mesh || n === 0) return
+    // Hidden (cached chamber or still compiling): skip the per-unit loop, but always fill it once.
+    if (scratch.shown >= 0 && !isShown(mesh)) return
+    scratch.shown = 1
     const dt = Math.min(rawDt, 0.05)
     const motion = useStore.getState().reducedMotion ? 0.2 : 1
     const target = clamp(progress(), 0, formations.length - 1)

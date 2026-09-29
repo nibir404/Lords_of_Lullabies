@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Color, DoubleSide, ExtrudeGeometry, Path, Shape } from 'three'
 import type { SceneProps } from '../types'
-import { LightShaft, Motes, useDisposable, usePalette } from '../shared'
+import { Figure, LightShaft, Motes, PaintedPlane, useDisposable, usePalette } from '../shared'
 import { FOG_TAIL, sceneShader } from '../glsl'
 
 function archShape(w: number, h: number, pointed: boolean, thickness: number) {
@@ -92,6 +92,83 @@ function StainedGlass({ colors, rose, position, size }: { colors: string[]; rose
   )
 }
 
+/**
+ * Romanesque: thick walls, a low barrel vault, slit windows and a painted apse with Christ in Majesty —
+ * light is scarce and precious, the opposite of Gothic's walls of glass.
+ */
+function Romanesque({ movement, stone, gold, quality }: { movement: SceneProps['movement']; stone: string; gold: string; quality: number }) {
+  const bays = useMemo(() => Array.from({ length: 6 }, (_, i) => 2 - i * 4.6), [])
+  const H = 6
+  return (
+    <group>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, -8]}>
+        <planeGeometry args={[140, 80]} />
+        <meshStandardMaterial color="#2a211a" roughness={0.9} />
+      </mesh>
+      {[-1, 1].map((sd) => (
+        <group key={sd}>
+          <mesh position={[sd * 7.6, H / 2, -12]}>
+            <boxGeometry args={[1.6, H, 32]} />
+            <meshStandardMaterial color={stone} roughness={1} />
+          </mesh>
+          {bays.slice(0, -1).map((z) => (
+            <group key={z}>
+              <mesh position={[sd * 6.78, H * 0.62, z - 2.3]} rotation={[0, sd * -Math.PI / 2, 0]}>
+                <planeGeometry args={[0.45, 1.5]} />
+                <meshBasicMaterial color="#ffd9a0" toneMapped={false} />
+              </mesh>
+              <mesh position={[sd * 6.78, H * 0.62 + 0.75, z - 2.3]} rotation={[0, sd * -Math.PI / 2, 0]}>
+                <circleGeometry args={[0.225, 16, 0, Math.PI]} />
+                <meshBasicMaterial color="#ffd9a0" toneMapped={false} />
+              </mesh>
+            </group>
+          ))}
+        </group>
+      ))}
+      <mesh position={[0, H, -12]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[7, 7, 32, 48, 1, true, -Math.PI / 2, Math.PI]} />
+        <meshStandardMaterial color={stone} roughness={1} side={DoubleSide} />
+      </mesh>
+      {bays.map((z) => (
+        <Arch key={z} w={13.4} h={H} pointed={false} position={[0, 0, z]} color="#5a4b3c" />
+      ))}
+      {/* apse: half-drum with a gold mandorla and Christ in Majesty */}
+      <mesh position={[0, H / 2 + 1, -27]}>
+        <cylinderGeometry args={[6.4, 6.4, H + 2, 48, 1, true, Math.PI / 2, Math.PI]} />
+        <meshStandardMaterial color="#6b3b2a" roughness={0.9} side={DoubleSide} />
+      </mesh>
+      <mesh position={[0, 5.2, -26]} scale={[1.6, 2.4, 1]}>
+        <torusGeometry args={[1, 0.08, 8, 48]} />
+        <meshStandardMaterial color={gold} metalness={0.8} roughness={0.3} />
+      </mesh>
+      <mesh position={[0, 5.2, -26.1]} scale={[1.6, 2.4, 1]}>
+        <circleGeometry args={[1, 48]} />
+        <meshStandardMaterial color="#1e2f5a" roughness={0.8} />
+      </mesh>
+      <Figure position={[0, 3.4, -25.9]} scale={1.2} color={gold} metalness={0.7} roughness={0.3} pose={{ contrapposto: 0, armRaise: 0.35 }} />
+      <mesh position={[0, 1, -22]}>
+        <boxGeometry args={[3.2, 2, 1.4]} />
+        <meshStandardMaterial color={stone} roughness={0.9} />
+      </mesh>
+      {/* lectern with an open illuminated gospel */}
+      <group position={[3.4, 0, -1.5]} rotation={[0, -0.5, 0]}>
+        <mesh position={[0, 0.8, 0]}>
+          <cylinderGeometry args={[0.12, 0.35, 1.6, 12]} />
+          <meshStandardMaterial color="#3a2618" roughness={0.8} />
+        </mesh>
+        <group position={[0, 1.7, 0]} rotation={[-0.7, 0, 0]}>
+          <PaintedPlane movement={movement} painter="knot" seed="folio-a" size={[0.9, 1.2]} res={[256, 340]} position={[-0.47, 0, 0]} rotation={[0, 0.12, 0]} />
+          <PaintedPlane movement={movement} painter="miniature" seed="folio-b" size={[0.9, 1.2]} res={[256, 340]} position={[0.47, 0, 0]} rotation={[0, -0.12, 0]} />
+        </group>
+      </group>
+      {[-7, -16].map((z, i) => (
+        <LightShaft key={z} position={[i % 2 ? 4.6 : -4.6, 3.4, z]} rotation={[0, 0, i % 2 ? 0.9 : -0.9]} radiusTop={0.2} radiusBottom={1.2} height={9} color="#ffd9a0" opacity={0.12} />
+      ))}
+      <Motes count={Math.round(160 * quality)} area={[12, 7, 30]} position={[0, 0, -12]} color="#f3e3b8" size={0.05} rise={0.04} sway={0.3} opacity={0.5} />
+    </group>
+  )
+}
+
 export default function GothicScene({ movement, quality }: SceneProps) {
   const pal = usePalette(movement)
   const pointed = movement.visual.variant !== 'romanesque'
@@ -99,6 +176,7 @@ export default function GothicScene({ movement, quality }: SceneProps) {
   const bays = useMemo(() => Array.from({ length: 7 }, (_, i) => 2 - i * 4.4), [])
   const H = pointed ? 11 : 6.5
   const glass = movement.visual.palette.colors
+  if (!pointed) return <Romanesque movement={movement} stone={stone} gold={pal.hex.accent} quality={quality} />
   return (
     <group>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, -8]}>

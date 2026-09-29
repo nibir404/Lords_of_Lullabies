@@ -66,6 +66,11 @@ export function StylePass() {
     return { scene, quad, camera: new OrthographicCamera(-1, 1, 1, -1, 0, 1) }
   }, [material])
 
+  // Compile the post shader up front; otherwise it links on the first transition, mid-flight.
+  useEffect(() => {
+    gl.compileAsync(post.scene, post.camera).catch(() => {})
+  }, [gl, post])
+
   useEffect(() => {
     const w = Math.max(2, Math.floor(size.width * dpr))
     const h = Math.max(2, Math.floor(size.height * dpr))

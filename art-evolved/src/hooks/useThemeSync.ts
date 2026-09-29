@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { MOVEMENTS } from '@/data/movements'
 import { VIEW_CONFIG } from '@/components/3d/viewConfig'
 import { useStore } from '@/state/store'
-import { hexToRgbTriplet, mixHex } from '@/utils/color'
+import { ensureContrast, hexToRgbTriplet, mixHex } from '@/utils/color'
 import { resolveStyle } from '@/components/3d/styleTarget'
 import type { UiTheme } from '@/data/types'
 
@@ -30,7 +30,7 @@ export function useThemeSync() {
     }
     root.style.setProperty('--bg', hexToRgbTriplet(bg))
     root.style.setProperty('--fg', hexToRgbTriplet(fg))
-    root.style.setProperty('--accent', hexToRgbTriplet(accent))
+    root.style.setProperty('--accent', hexToRgbTriplet(ensureContrast(accent, bg, fg)))
     root.style.setProperty('--panel', hexToRgbTriplet(mixHex(bg, fg, 0.04)))
     root.dataset.ui = ui
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg)

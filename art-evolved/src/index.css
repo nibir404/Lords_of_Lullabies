@@ -42,7 +42,7 @@ body {
 }
 
 :focus-visible {
-  outline: 1px solid rgb(var(--accent));
+  outline: 2px solid rgb(var(--accent));
   outline-offset: 3px;
 }
 
@@ -221,6 +221,48 @@ body {
   animation: fade 0.4s var(--ease) both;
 }
 
+/* Scrims: the HUD always sits on a soft wash of the chamber colour, so text never lands directly on
+   bright or busy parts of the scene. */
+.hud-scrim-top::before,
+.hud-scrim-bottom::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  z-index: -1;
+  pointer-events: none;
+  transition: background 1.2s var(--ease);
+}
+.hud-scrim-top::before {
+  top: 0;
+  height: 150%;
+  background: linear-gradient(rgb(var(--bg) / 0.78), rgb(var(--bg) / 0.4) 55%, rgb(var(--bg) / 0));
+}
+.hud-scrim-bottom::before {
+  bottom: 0;
+  height: 135%;
+  background: linear-gradient(rgb(var(--bg) / 0), rgb(var(--bg) / 0.72) 38%, rgb(var(--bg) / 0.9));
+}
+
+/* One type scale for the whole journey. */
+.t-eyebrow {
+  font-family: 'Inter Tight', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(var(--fg) / 0.72);
+}
+.t-meta {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+  color: rgb(var(--fg) / 0.8);
+}
+.t-body {
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgb(var(--fg) / 0.9);
+}
+
 /* ───────────────────────────── the interface evolves with the chamber */
 
 /* Stone: rough, weighty, earth-toned. */
@@ -245,10 +287,6 @@ body {
 }
 
 /* Ink: vertical writing, seal-red accent, vast margins (ma). */
-[data-ui='ink'] .hud-era-name {
-  writing-mode: vertical-rl;
-  letter-spacing: 0.5em;
-}
 [data-ui='ink'] .museum-panel {
   border: none;
   border-left: 1px solid rgb(var(--fg) / 0.5);
@@ -257,31 +295,16 @@ body {
 [data-ui='ink'] .panel-seal {
   display: block;
 }
-[data-ui='ink'] .hud-bottom {
-  opacity: 0.75;
-}
 
 /* Fragment: Cubist — the layout breaks into planes seen from different angles. */
 [data-ui='fragment'] .museum-panel {
-  clip-path: polygon(0 2%, 96% 0, 100% 45%, 98% 100%, 3% 97%, 1% 55%);
-  transform: rotate(-0.8deg);
-}
-[data-ui='fragment'] .panel-section:nth-child(odd) {
-  transform: translateX(10px) rotate(0.6deg);
-}
-[data-ui='fragment'] .panel-section:nth-child(even) {
-  transform: translateX(-6px) rotate(-0.5deg);
-  background: rgb(var(--fg) / 0.04);
-}
-[data-ui='fragment'] .hud-title {
-  transform: skewX(-8deg);
+  clip-path: polygon(0 1%, 98% 0, 100% 50%, 99% 100%, 1% 99%, 0 50%);
 }
 
 /* Dream: floating, soft, slightly adrift. */
 [data-ui='dream'] .museum-panel {
   border-radius: 28px;
   border-color: rgb(var(--fg) / 0.08);
-  animation: dream-float 9s ease-in-out infinite;
 }
 [data-ui='dream'] .panel-heading {
   font-family: 'Instrument Serif', Georgia, serif;
@@ -289,33 +312,16 @@ body {
   text-transform: none;
   letter-spacing: 0.02em;
 }
-@keyframes dream-float {
-  50% {
-    transform: translateY(-6px) rotate(0.3deg);
-  }
-}
 
 /* Void: Minimalism — the interface all but disappears. */
-[data-ui='void'][data-idle='true'] .hud-chrome {
-  opacity: 0 !important;
-  pointer-events: none;
-}
-[data-ui='void'] .hud-chrome {
-  transition: opacity 2.4s var(--ease);
-}
-[data-ui='void'] .progress-glyphs,
-[data-ui='void'] .hud-ticks {
-  opacity: 0.25;
-}
 [data-ui='void'] .museum-panel {
-  border-color: transparent;
-  background: rgb(var(--panel) / 0.7);
+  border-color: rgb(var(--fg) / 0.08);
 }
 
 /* Mono: ASCII / dither — typography becomes the artwork. */
-[data-ui='mono'] body,
-[data-ui='mono'] .hud-chrome,
-[data-ui='mono'] .museum-panel,
+[data-ui='mono'] .hud-title,
+[data-ui='mono'] .hud-era-name,
+[data-ui='mono'] .panel-heading,
 [data-ui='mono'] .museum-btn {
   font-family: 'JetBrains Mono', ui-monospace, monospace !important;
 }
@@ -325,14 +331,10 @@ body {
 [data-ui='mono'] .hud-title::before {
   content: '> ';
 }
-[data-ui='mono'] .hud-title::after {
-  content: '_';
-  animation: blink 1s steps(1) infinite;
-}
 
 /* Pixel: the whole interface quantises. */
-[data-ui='pixel'] .hud-chrome,
-[data-ui='pixel'] .museum-panel,
+[data-ui='pixel'] .hud-title,
+[data-ui='pixel'] .hud-era-name,
 [data-ui='pixel'] .museum-btn,
 [data-ui='pixel'] .panel-heading {
   font-family: Silkscreen, 'JetBrains Mono', monospace !important;
@@ -361,8 +363,7 @@ body {
 /* Glitch: controlled breakage. */
 [data-ui='glitch'] .hud-title,
 [data-ui='glitch'] .panel-heading {
-  text-shadow: 2px 0 rgb(255 42 109 / 0.8), -2px 0 rgb(5 217 232 / 0.8);
-  animation: glitch-shift 3.2s steps(1) infinite;
+  text-shadow: 1px 0 rgb(255 42 109 / 0.55), -1px 0 rgb(5 217 232 / 0.55);
 }
 [data-ui='glitch'] .museum-panel {
   border-color: rgb(var(--accent));

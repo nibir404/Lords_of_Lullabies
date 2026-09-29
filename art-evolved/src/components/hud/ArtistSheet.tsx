@@ -14,8 +14,8 @@ import type { CategoryId } from '@/data/types'
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="grid grid-cols-[110px_1fr] gap-4 border-t border-fg/10 py-3.5">
-      <dt className="font-sans text-[9px] uppercase tracking-museum text-muted">{label}</dt>
-      <dd className="font-sans text-[14px] leading-relaxed text-fg/85">{children}</dd>
+      <dt className="font-sans text-[11px] uppercase tracking-museum text-muted">{label}</dt>
+      <dd className="font-sans text-[15px] leading-relaxed text-fg/85">{children}</dd>
     </div>
   )
 }
@@ -37,14 +37,14 @@ export function ArtistSheet() {
             <div className="relative aspect-[4/3] w-full overflow-hidden border-b border-fg/15">
               <ProceduralCanvas key={`${a.id}-${variant}`} movement={home} seed={`${a.id}-${variant}`} painter={a.painter} width={720} height={540} label={`Procedural interpretation of the visual language of ${a.name}`} />
               <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between">
-                <span className="bg-bg/80 px-2 py-1 font-mono text-[9px] uppercase tracking-museum text-fg/80">Procedural interpretation · no. {String(variant + 1).padStart(3, '0')}</span>
+                <span className="bg-bg/80 px-2 py-1 font-mono text-[11px] uppercase tracking-museum text-fg/80">Procedural interpretation · no. {String(variant + 1).padStart(3, '0')}</span>
                 <Button variant="primary" size="sm" onClick={() => setVariant((v) => v + 1)}>
                   Regenerate
                 </Button>
               </div>
             </div>
             <div className="px-8 pb-10 pt-7">
-              <div className="font-sans text-[9px] uppercase tracking-museum text-muted">Artist</div>
+              <div className="font-sans text-[11px] uppercase tracking-museum text-muted">Artist</div>
               <SheetTitle className="mt-2 font-sans text-[36px] font-semibold leading-[0.95] tracking-[-0.02em]">{a.name}</SheetTitle>
               <SheetDescription className="mt-4 font-serif text-[22px] italic leading-snug text-fg/85">{a.coreIdeas}</SheetDescription>
               <dl className="mt-6">
@@ -79,7 +79,7 @@ export function ArtistSheet() {
                 <Field label="Influence">{a.influence}</Field>
                 {a.note && <Field label="Note">{a.note}</Field>}
               </dl>
-              <p className="mt-6 font-mono text-[10px] leading-relaxed text-muted">
+              <p className="mt-6 font-mono text-[11px] leading-relaxed text-muted">
                 The image above is generated from the grammar of {home.name.toLowerCase()} — it is not, and does not imitate, any work by {a.name}.
               </p>
             </div>
@@ -102,11 +102,11 @@ export function ArtistsIndex() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="top-[8vh] w-[min(920px,calc(100vw-32px))] p-0">
         <div className="px-8 pb-4 pt-8">
-          <DialogTitle className="text-[10px] text-muted">Artist explorer</DialogTitle>
+          <DialogTitle className="text-[11px] text-muted">Artist explorer</DialogTitle>
           <DialogDescription className="mt-2 text-[26px] text-fg">{ARTISTS.length} artists across cultures and centuries.</DialogDescription>
           <div className="mt-5 flex flex-wrap gap-1.5" role="tablist" aria-label="Filter by tradition">
             {CATS.map((c) => (
-              <button key={c} role="tab" aria-selected={cat === c} onClick={() => setCat(c)} className={`border px-2.5 py-1 font-sans text-[9px] uppercase tracking-museum transition-colors ${cat === c ? 'border-fg bg-fg text-bg' : 'border-fg/20 text-fg/70 hover:border-fg/60'}`}>
+              <button key={c} role="tab" aria-selected={cat === c} onClick={() => setCat(c)} className={`border px-2.5 py-1 font-sans text-[11px] uppercase tracking-museum transition-colors ${cat === c ? 'border-fg bg-fg text-bg' : 'border-fg/20 text-fg/70 hover:border-fg/60'}`}>
                 {c === 'all' ? 'All' : CATEGORY_LABELS[c]}
               </button>
             ))}
@@ -125,7 +125,7 @@ export function ArtistsIndex() {
                   className="group flex w-full items-baseline justify-between gap-3 py-3 text-left transition-[padding] duration-500 ease-museum hover:pl-2"
                 >
                   <span className="font-sans text-[15px] group-hover:text-accent">{a.name}</span>
-                  <span className="shrink-0 font-mono text-[10px] text-muted">{MOVEMENT_BY_ID[a.movements[0]]?.name}</span>
+                  <span className="shrink-0 font-mono text-[11px] text-muted">{MOVEMENT_BY_ID[a.movements[0]]?.name}</span>
                 </button>
               </li>
             ))}

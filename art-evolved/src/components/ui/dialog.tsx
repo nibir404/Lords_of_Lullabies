@@ -28,7 +28,7 @@ export const DialogContent = React.forwardRef<
     >
       {children}
       {!hideClose && (
-        <DialogPrimitive.Close className="absolute right-4 top-4 font-sans text-[10px] uppercase tracking-museum text-fg/60 hover:text-fg focus-visible:outline-none">
+        <DialogPrimitive.Close className="absolute right-4 top-4 font-sans text-[11px] uppercase tracking-museum text-fg/80 hover:text-fg">
           Close
         </DialogPrimitive.Close>
       )}

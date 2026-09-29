@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useStore, type ViewId } from '@/state/store'
 import { world } from '@/state/world'
+import { PrecompiledGroup } from './Precompiled'
 
 const LandingView = lazy(() => import('./views/LandingView'))
 const EvolutionView = lazy(() => import('./views/EvolutionView'))
@@ -48,9 +49,14 @@ export function Views({ quality }: { quality: number }) {
   return (
     <>
       {[...ids].map((id) => (
-        <Suspense key={id} fallback={null}>
-          <ViewScene id={id} quality={quality} />
-        </Suspense>
+        <PrecompiledGroup key={id}>
+          {(precompile) => (
+            <Suspense fallback={null}>
+              <ViewScene id={id} quality={quality} />
+              {precompile}
+            </Suspense>
+          )}
+        </PrecompiledGroup>
       ))}
     </>
   )

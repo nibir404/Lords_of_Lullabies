@@ -25,4 +25,6 @@ export const VARIANT_SYSTEM: Record<string, string> = {
   fractal: 'fractal',
   data: 'data',
   reaction: 'reaction',
+  // Generative Art (the Processing era): a strange attractor — a system, not a picture.
+  lab: 'attractor',
 }

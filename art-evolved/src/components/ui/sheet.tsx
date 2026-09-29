@@ -28,7 +28,7 @@ export const SheetContent = React.forwardRef<
     <SheetPrimitive.Overlay className="museum-overlay fixed inset-0 z-50 bg-bg/40" />
     <SheetPrimitive.Content ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
       {children}
-      <SheetPrimitive.Close className="absolute right-5 top-5 font-sans text-[10px] uppercase tracking-museum text-fg/60 hover:text-fg focus-visible:outline-none">
+      <SheetPrimitive.Close className="absolute right-5 top-5 font-sans text-[11px] uppercase tracking-museum text-fg/80 hover:text-fg">
         Close ✕
       </SheetPrimitive.Close>
     </SheetPrimitive.Content>

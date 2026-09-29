@@ -386,7 +386,7 @@ const DEFS: Movement[] = [
     influence: 'Became the official style of republics and academies; the “classical” modernism reacted against.',
     artists: ['jacques-louis-david', 'antonio-canova'], keywords: ['neoclassical', 'pompeii', 'white', 'order'],
     visualSystems: ['symmetry', 'contour', 'white-marble'], influencedBy: ['greek', 'roman'], reactionTo: ['rococo'],
-    visual: vs('temple', pal('#f1efea', '#1b1b1c', '#3b5f8a', '#fbfaf7', '#d5d1c9', '#9a968e', '#3b5f8a'), { variant: 'neoclassical', lighting: 'flat' }),
+    visual: vs('temple', pal('#f1efea', '#1b1b1c', '#3b5f8a', '#fbfaf7', '#d5d1c9', '#9a968e', '#3b5f8a'), { variant: 'neoclassical', lighting: 'hard' }),
   }),
   m({
     id: 'romanticism', name: 'Romanticism', startYear: 1800, endYear: 1850, region: 'Europe', category: 'european', eraId: 'romanticism',
@@ -758,7 +758,7 @@ const DEFS: Movement[] = [
     influence: 'Bridged street culture and the gallery system.',
     artists: ['jean-michel-basquiat'], keywords: ['neo expressionism', 'basquiat', 'crown', 'scribble'],
     visualSystems: ['scribble', 'crowns', 'crossed-text'], influencedBy: ['expressionism', 'graffiti'], reactionTo: ['minimalism', 'conceptual'],
-    visual: vs('street', pal('#e9dcc4', '#141210', '#e8b123', '#141210', '#e8b123', '#d23a2a', '#2c5aa0'), { variant: 'neo', lighting: 'flat', ui: 'fragment' }),
+    visual: vs('street', pal('#e9dcc4', '#141210', '#e8b123', '#141210', '#e8b123', '#d23a2a', '#2c5aa0'), { variant: 'neo', lighting: 'museum', ui: 'fragment' }),
   }),
   m({
     id: 'fractal-art', name: 'Fractal Art', startYear: 1980, endYear: null, region: 'Global', category: 'digital', eraId: 'digital',

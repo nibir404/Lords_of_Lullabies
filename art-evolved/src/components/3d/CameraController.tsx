@@ -73,6 +73,7 @@ export function CameraController() {
   const tween = useRef<Tween | null>(null)
   const lastView = useRef<ViewId>(useStore.getState().view)
   const roll = useRef(0)
+  const lastIndexAt = useRef(0)
 
   useFrame((state, rawDt) => {
     const dt = Math.min(rawDt, 0.05)
@@ -119,7 +120,12 @@ export function CameraController() {
         transit = Math.max(transit, clamp(Math.abs(world.velocity) * 0.45 - 0.12))
       }
       const idx = Math.max(0, Math.min(MOVEMENTS.length - 1, Math.round(world.f)))
-      if (idx !== s.activeIndex) s.setActiveIndex(idx)
+      // During a leap the camera crosses many chambers per second; each change re-themes the whole
+      // interface, so the HUD ticks through them at a readable rate instead of on every crossing.
+      if (idx !== s.activeIndex && (!world.jump || now - lastIndexAt.current > 200)) {
+        lastIndexAt.current = now
+        s.setActiveIndex(idx)
+      }
     }
 
     world.orbit.yaw += (world.orbit.targetYaw - world.orbit.yaw) * damp(5, dt)

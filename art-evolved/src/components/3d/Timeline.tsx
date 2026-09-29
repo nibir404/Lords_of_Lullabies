@@ -9,45 +9,86 @@ import { CHAMBER_SPACING, chamberZ, world } from '@/state/world'
 import { EraScene } from './EraScene'
 
 const PORTAL_OFFSET = CHAMBER_SPACING * 0.42
+/** Minimum gap between two chamber mounts, so their setup work never lands in the same frame. */
+const MOUNT_GAP = 140
 
-function mountedKey(indices: number[]) {
-  return indices.join(',')
+/** How many chambers may stay mounted: the ones around the camera plus recently visited ones. */
+function cacheSize(quality: number) {
+  return quality >= 1 ? 6 : quality >= 0.6 ? 4 : 3
 }
 
 /**
- * The corridor. Only the chamber nearest the camera and its neighbours exist; during a long
- * leap intermediate chambers are skipped entirely and the destination is mounted early.
+ * The corridor. The chambers around the camera are mounted (only the current one while moving fast,
+ * and just the destination during a long leap). Recently visited chambers stay mounted but hidden,
+ * so stepping back and forth never rebuilds them. New chambers are mounted one at a time.
  */
 export function Timeline({ quality }: { quality: number }) {
   const view = useStore((s) => s.view)
   const [mounted, setMounted] = useState<number[]>([0])
-  const key = useRef('0')
+  const cache = useRef({ list: [0] as number[], lastMount: 0 })
 
   useFrame(() => {
     const s = useStore.getState()
-    let next: number[]
-    if (s.view === 'landing') next = [0]
-    else if (s.view !== 'timeline' && !world.tweening) next = []
+    const now = performance.now()
+    let need: number[]
+    let wanted: number[] = []
+    if (s.view === 'landing') need = [0]
+    else if (s.view !== 'timeline' && !world.tweening) need = []
     else if (world.jump) {
       const j = world.jump
-      const p = (performance.now() - j.start) / j.duration
-      next = p < 0.25 ? [Math.round(j.from), j.to] : [j.to]
+      const p = (now - j.start) / j.duration
+      need = p < 0.25 ? [j.to, Math.round(j.from)] : [j.to]
     } else {
       const c = Math.round(world.f)
       const moving = Math.abs(world.velocity) > 6
-      next = moving ? [c] : [c - 1, c, c + 1]
+      const dir = world.target >= world.f ? 1 : -1
+      need = [c]
+      // Neighbours in the direction of travel first; skipped while scrolling fast.
+      wanted = moving ? [] : [c + dir, c - dir]
     }
-    next = [...new Set(next.filter((i) => i >= 0 && i < MOVEMENTS.length))].sort((a, b) => a - b)
-    const k = mountedKey(next)
-    if (k !== key.current) {
-      key.current = k
-      setMounted(next)
+    const valid = (i: number) => i >= 0 && i < MOVEMENTS.length
+    need = need.filter(valid)
+    wanted = wanted.filter(valid)
+
+    const c = cache.current
+    const prev = c.list
+    let list = prev
+    if (need.length === 0) {
+      if (prev.length) list = []
+    } else {
+      // Required chambers go in immediately; optional ones wait for the mount gap.
+      const missing = need.filter((i) => !list.includes(i))
+      if (missing.length) {
+        list = [...list, ...missing]
+        c.lastMount = now
+      }
+      if (now - c.lastMount > MOUNT_GAP) {
+        const next = wanted.find((i) => !list.includes(i))
+        if (next !== undefined) {
+          list = [...list, next]
+          c.lastMount = now
+        }
+      }
+      const cap = Math.max(cacheSize(quality), need.length + wanted.length)
+      if (list.length > cap) {
+        const keep = new Set([...need, ...wanted])
+        const f = world.f
+        const evict = list.filter((i) => !keep.has(i)).sort((a, b) => Math.abs(b - f) - Math.abs(a - f))
+        const drop = new Set(evict.slice(0, list.length - cap))
+        list = list.filter((i) => !drop.has(i))
+      }
+    }
+    if (list !== prev) {
+      c.list = list
+      setMounted([...list].sort((a, b) => a - b))
     }
   })
 
   // Warm the code-split chunks for the next chambers in the direction of travel.
   const active = useStore((s) => s.activeIndex)
   useEffect(() => {
+    // Mid-leap the chambers flown past won't be visited; the destination is mounted directly.
+    if (world.jump && Math.round(world.jump.to) !== active) return
     for (const d of [1, 2, -1]) {
       const m = MOVEMENTS[active + d]
       if (m) preloadScene(m.visual.scene)

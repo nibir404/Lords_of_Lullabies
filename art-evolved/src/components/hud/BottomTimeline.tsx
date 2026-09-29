@@ -1,6 +1,7 @@
 import { memo } from 'react'
 import { MOVEMENTS } from '@/data/movements'
-import { ERAS, formatSpan } from '@/data/eras'
+import { ERAS, ERA_BY_ID, formatSpan } from '@/data/eras'
+import { HISTORIES } from '@/data/histories'
 import { useStore } from '@/state/store'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -36,7 +37,7 @@ const Tick = memo(function Tick({ index, active, onSelect }: { index: number; ac
         </div>
         <div className="px-3 py-2">
           <div className="font-sans text-[11px] font-medium uppercase tracking-museum">{m.name}</div>
-          <div className="mt-0.5 font-mono text-[9px] text-muted">{formatSpan(m.startYear, m.endYear)}</div>
+          <div className="mt-0.5 font-mono text-[11px] text-muted">{formatSpan(m.startYear, m.endYear)}</div>
         </div>
       </TooltipContent>
     </Tooltip>
@@ -52,16 +53,35 @@ export function BottomTimeline() {
   const prev = useStore((s) => s.prev)
   const surpriseMe = useStore((s) => s.surpriseMe)
   const m = MOVEMENTS[index]
+  const h = HISTORIES[m.id]
   const total = MOVEMENTS.length
-  const eraStarts = ERAS.map((e) => ({ e, i: MOVEMENTS.findIndex((mv) => mv.eraId === e.id) })).filter((x) => x.i >= 0)
+  // Era labels under the ticks, skipping any that would collide with the previous one.
+  const eraStarts: { e: (typeof ERAS)[number]; i: number }[] = []
+  for (const e of ERAS) {
+    const i = MOVEMENTS.findIndex((mv) => mv.eraId === e.id)
+    if (i < 0) continue
+    const last = eraStarts[eraStarts.length - 1]
+    if (!last || (i - last.i) / MOVEMENTS.length > 0.085) eraStarts.push({ e, i })
+  }
 
   return (
-    <footer className="hud-chrome hud-bottom pointer-events-none fixed inset-x-0 bottom-0 z-30 px-5 pb-4 md:px-10 md:pb-6" aria-label="Timeline">
+    <footer className="hud-chrome hud-bottom hud-scrim-bottom pointer-events-none fixed inset-x-0 bottom-0 z-30 px-5 pb-4 md:px-10 md:pb-6" aria-label="Timeline">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="pointer-events-auto hud-text min-w-0">
-          <div className="font-mono text-[10px] uppercase tracking-museum text-muted">{formatSpan(m.startYear, m.endYear)}</div>
-          <h2 className="hud-era-name mt-1 max-w-[62vw] truncate font-sans text-[clamp(26px,3.6vw,52px)] font-semibold uppercase leading-none tracking-[-0.02em] text-fg">{m.name}</h2>
-          <div className="mt-2 flex items-center gap-3 font-mono text-[10px] text-fg/70" aria-label={`Chamber ${index + 1} of ${total}`}>
+        <div className="pointer-events-auto hud-text min-w-0 max-w-[min(640px,62vw)]" aria-live="polite">
+          <div className="t-eyebrow">
+            {ERA_BY_ID[m.eraId]?.name} · {formatSpan(m.startYear, m.endYear)}
+          </div>
+          <h2 className="hud-era-name mt-1.5 truncate font-sans text-[clamp(28px,3.6vw,52px)] font-semibold uppercase leading-none tracking-[-0.02em] text-fg">{m.name}</h2>
+          {h && (
+            <p className="mt-2.5 line-clamp-2 font-sans text-[14px] leading-snug text-fg/90">
+              <span className="font-medium text-fg">Pioneers: </span>
+              {h.pioneers
+                .slice(0, 3)
+                .map((p) => p.name)
+                .join(' · ')}
+            </p>
+          )}
+          <div className="t-meta mt-2 flex items-center gap-3" aria-label={`Chamber ${index + 1} of ${total}`}>
             <span className="progress-glyphs" aria-hidden>
               {progressGlyphs(index, total)}
             </span>
@@ -78,7 +98,7 @@ export function BottomTimeline() {
             ← Previous
           </Button>
           <Button variant={exploring ? 'primary' : 'outline'} size="md" onClick={toggleExplore} aria-pressed={exploring}>
-            {exploring ? 'Close' : 'Explore'}
+            {exploring ? 'Close story' : 'Read the story'}
           </Button>
           <Button variant="outline" size="md" onClick={next} aria-label={index === total - 1 ? 'Enter the coda' : 'Next chamber'}>
             {index === total - 1 ? 'Coda →' : 'Next →'}
@@ -93,8 +113,8 @@ export function BottomTimeline() {
         </div>
         <div className="relative mt-1 hidden h-3 md:block" aria-hidden>
           {eraStarts.map(({ e, i }) => (
-            <span key={e.id} className="absolute top-0 whitespace-nowrap font-sans text-[8px] uppercase tracking-[0.14em] text-muted" style={{ left: `${(i / total) * 100}%` }}>
-              {i % 2 === 0 || e.id === 'renaissance' ? e.name : ''}
+            <span key={e.id} className="absolute top-0 whitespace-nowrap font-sans text-[11px] uppercase tracking-[0.12em] text-fg/75" style={{ left: `${(i / total) * 100}%` }}>
+              {e.name}
             </span>
           ))}
         </div>

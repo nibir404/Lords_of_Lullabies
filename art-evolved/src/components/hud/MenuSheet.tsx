@@ -44,7 +44,7 @@ export function MenuSheet() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent side="right" className="overflow-y-auto px-8 pb-10 pt-16">
-        <SheetTitle className="font-sans text-[10px] uppercase tracking-museum text-muted">Menu</SheetTitle>
+        <SheetTitle className="font-sans text-[11px] uppercase tracking-museum text-muted">Menu</SheetTitle>
         <SheetDescription className="sr-only">Navigate the wings of the museum and adjust settings.</SheetDescription>
         <NavigationMenu orientation="vertical" className="mt-6">
           <NavigationMenuList>
@@ -61,10 +61,10 @@ export function MenuSheet() {
                   onClick={(e) => e.preventDefault()}
                 >
                   <span className="flex items-baseline gap-4">
-                    <span className="font-mono text-[10px] text-muted">{String(i + 1).padStart(2, '0')}</span>
+                    <span className="font-mono text-[11px] text-muted">{String(i + 1).padStart(2, '0')}</span>
                     {l.label}
                   </span>
-                  <span className="font-sans text-[9px] uppercase tracking-museum text-muted">{l.hint}</span>
+                  <span className="font-sans text-[11px] uppercase tracking-museum text-muted">{l.hint}</span>
                 </NavigationMenuLink>
               </NavigationMenuItem>
             ))}
@@ -74,14 +74,14 @@ export function MenuSheet() {
         <Separator className="my-8" />
         <div className="space-y-5">
           <div className="flex items-center justify-between">
-            <span className="font-sans text-[10px] uppercase tracking-museum text-muted">Sound</span>
+            <span className="font-sans text-[11px] uppercase tracking-museum text-muted">Sound</span>
             <Button variant="outline" size="sm" onClick={() => setSound(!sound)} aria-pressed={sound}>
               {sound ? 'On' : 'Off'}
             </Button>
           </div>
           {device !== 'mobile' && (
             <div className="flex items-center justify-between">
-              <span className="font-sans text-[10px] uppercase tracking-museum text-muted">Rendering</span>
+              <span className="font-sans text-[11px] uppercase tracking-museum text-muted">Rendering</span>
               <div className="flex gap-1" role="radiogroup" aria-label="Rendering quality">
                 {(['high', 'medium', 'low'] as Quality[]).map((q) => (
                   <Button key={q} role="radio" aria-checked={quality === q} variant={quality === q ? 'primary' : 'outline'} size="sm" onClick={() => setEnv({ quality: q })}>
@@ -92,7 +92,7 @@ export function MenuSheet() {
             </div>
           )}
           <div>
-            <div className="mb-3 font-sans text-[10px] uppercase tracking-museum text-muted">Keyboard</div>
+            <div className="mb-3 font-sans text-[11px] uppercase tracking-museum text-muted">Keyboard</div>
             <dl className="grid grid-cols-[80px_1fr] gap-y-1.5 font-mono text-[11px]">
               {SHORTCUTS.map(([k, v]) => (
                 <div key={k} className="contents">

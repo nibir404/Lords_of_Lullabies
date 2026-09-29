@@ -9,7 +9,7 @@ export default {
         accent: 'rgb(var(--accent) / <alpha-value>)',
         panel: 'rgb(var(--panel) / <alpha-value>)',
         line: 'rgb(var(--fg) / 0.16)',
-        muted: 'rgb(var(--fg) / 0.56)',
+        muted: 'rgb(var(--fg) / 0.7)',
       },
       fontFamily: {
         sans: ['"Inter Tight"', 'Helvetica Neue', 'Arial', 'sans-serif'],

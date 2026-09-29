@@ -1,5 +1,4 @@
 import { useEffect, type RefObject } from 'react'
-import { MOVEMENTS } from '@/data/movements'
 import { useStore } from '@/state/store'
 import { world } from '@/state/world'
 import { clamp } from '@/utils/math'
@@ -16,6 +15,13 @@ export function useWorldInput(ref: RefObject<HTMLElement>) {
     let lastX = 0
     let lastY = 0
     let landingAccum = 0
+    // One wheel gesture = one chamber. A trackpad flick keeps emitting inertial events for ~1s, so
+    // after a step the wheel is locked until the gesture has gone quiet (or a clearly new one starts).
+    let stepAccum = 0
+    let stepLocked = false
+    let stepLockedUntil = 0
+    let lastWheel = 0
+    let lastMag = 0
     const touches = new Map<number, { x: number; y: number }>()
     let pinchStart = 0
     let zoomStart = 0
@@ -30,8 +36,34 @@ export function useWorldInput(ref: RefObject<HTMLElement>) {
         return
       }
       if (s.view === 'timeline') {
-        world.jump = null
-        world.target = clamp(world.target + e.deltaY * 0.0024, 0, MOVEMENTS.length - 1)
+        const now = performance.now()
+        const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX
+        const mag = Math.abs(delta) * (e.deltaMode === 1 ? 33 : e.deltaMode === 2 ? 400 : 1)
+        const quiet = now - lastWheel > 180
+        lastWheel = now
+        if (now < stepLockedUntil) {
+          lastMag = mag
+          return
+        }
+        if (stepLocked) {
+          // Still the same gesture (inertia only decays): ignore. A quiet gap or a sharp rise is a new one.
+          if (!quiet && mag <= lastMag * 1.5 + 4) {
+            lastMag = mag
+            return
+          }
+          stepLocked = false
+          stepAccum = 0
+        }
+        lastMag = mag
+        if (quiet) stepAccum = 0
+        stepAccum += Math.sign(delta) * mag
+        if (Math.abs(stepAccum) < 24) return
+        const dir = Math.sign(stepAccum)
+        stepAccum = 0
+        stepLocked = true
+        stepLockedUntil = now + 600
+        if (dir > 0) s.next()
+        else s.prev()
       } else if (s.view === 'landing') {
         landingAccum += Math.max(0, e.deltaY)
         if (landingAccum > 260) {

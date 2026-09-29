@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { BufferAttribute, BufferGeometry, Color, DataTexture, InstancedMesh, LinearFilter, Object3D, Points, RGBAFormat, Vector3 } from 'three'
+import { AdditiveBlending, BufferAttribute, BufferGeometry, Color, DataTexture, type Group, InstancedMesh, LinearFilter, Object3D, Points, RGBAFormat, Vector3 } from 'three'
 import type { SceneProps } from '../types'
 import { useDisposable, usePalette } from '../shared'
 import { FOG_TAIL, sceneShader } from '../glsl'
 import { useStore } from '@/state/store'
+import { MOVEMENTS } from '@/data/movements'
 import { GEN_SYSTEMS, VARIANT_SYSTEM } from '@/data/generative'
 import { mulberry32, pick, randomSeed } from '@/utils/random'
 import { createNoise3D } from '@/utils/noise'
@@ -83,7 +84,7 @@ function useSimulation(system: string, seed: number, chaos: number, density: num
   return tex
 }
 
-function Screen({ system, colors }: { system: string; colors: Color[] }) {
+function Screen({ system, colors, immersive = false }: { system: string; colors: Color[]; immersive?: boolean }) {
   const p = useStore((s) => s.instruments.generative)
   const sim = useSimulation(system, p.seed, p.chaos, p.density)
   const idx = GEN_SYSTEMS.findIndex((s) => s.id === system)
@@ -195,6 +196,18 @@ function Screen({ system, colors }: { system: string; colors: Color[] }) {
     u.uSym.value = g.symmetry
     u.tSim.value = sim
   })
+  if (immersive)
+    // Projection-mapped room: the same live system covers the back wall and flows onto the floor.
+    return (
+      <group>
+        <mesh material={mat} position={[0, 7, -16]}>
+          <planeGeometry args={[40, 14]} />
+        </mesh>
+        <mesh material={mat} position={[0, 0.03, -4]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[40, 24]} />
+        </mesh>
+      </group>
+    )
   return (
     <group position={[0, 6.5, -10]}>
       <mesh material={mat}>
@@ -204,6 +217,45 @@ function Screen({ system, colors }: { system: string; colors: Color[] }) {
         <boxGeometry args={[19.8, 12.6, 0.1]} />
         <meshBasicMaterial color="#1a1a1c" />
       </mesh>
+    </group>
+  )
+}
+
+/** Sierpiński tetrahedron: the same shape repeated at every scale, slowly turning. */
+function Sierpinski({ colors, depth = 4 }: { colors: Color[]; depth?: number }) {
+  const ref = useRef<InstancedMesh>(null)
+  const cells = useMemo(() => {
+    const v = [new Vector3(1, 1, 1), new Vector3(-1, -1, 1), new Vector3(-1, 1, -1), new Vector3(1, -1, -1)]
+    let list: { c: Vector3; s: number }[] = [{ c: new Vector3(), s: 1 }]
+    for (let d = 0; d < depth; d++) list = list.flatMap(({ c, s }) => v.map((o) => ({ c: c.clone().addScaledVector(o, s / 2), s: s / 2 })))
+    return list
+  }, [depth])
+  useEffect(() => {
+    const m = ref.current
+    if (!m) return
+    const o = new Object3D()
+    const col = new Color()
+    cells.forEach(({ c, s }, i) => {
+      o.position.copy(c)
+      o.scale.setScalar(s)
+      o.updateMatrix()
+      m.setMatrixAt(i, o.matrix)
+      col.copy(colors[0]).lerp(colors[2], (c.y + 1) / 2)
+      m.setColorAt(i, col)
+    })
+    m.instanceMatrix.needsUpdate = true
+    if (m.instanceColor) m.instanceColor.needsUpdate = true
+  }, [cells, colors])
+  const g = useRef<Group>(null)
+  useFrame((_, dt) => {
+    if (g.current) g.current.rotation.y += dt * 0.12
+  })
+  return (
+    <group ref={g} position={[0, 4.2, -1]} scale={3.4}>
+      <instancedMesh ref={ref} args={[undefined, undefined, cells.length]}>
+        <tetrahedronGeometry args={[1.0]} />
+        <meshStandardMaterial roughness={0.35} metalness={0.3} flatShading />
+      </instancedMesh>
     </group>
   )
 }
@@ -220,7 +272,8 @@ function Attractor({ colors, quality }: { colors: Color[]; quality: number }) {
   const n = Math.round(60000 * quality)
   const geo = useDisposable(() => {
     const rng = mulberry32(p.seed)
-    const a = 0.95 + p.chaos * 0.2, b = 0.7, c = 0.6, d = 3.5, e = 0.25 + p.iterations * 0.1, f = 0.1
+    // Aizawa parameters kept inside the chaotic regime; beyond a≈1 the orbit collapses to a point.
+    const a = 0.85 + p.chaos * 0.1, b = 0.7, c = 0.6, d = 3.5, e = 0.2 + p.iterations * 0.15, f = 0.1
     let x = 0.1 + rng() * 0.01, y = 0, z = 0
     const pts = new Float32Array(n * 3)
     const col = new Float32Array(n * 3)
@@ -248,9 +301,9 @@ function Attractor({ colors, quality }: { colors: Color[]; quality: number }) {
     if (ref.current) ref.current.rotation.y += dt * 0.15
   })
   return (
-    <group position={[0, 5, -8]}>
+    <group position={[0, 2.6, -6]} scale={1.4}>
       <points ref={ref} geometry={geo}>
-        <pointsMaterial size={0.035} vertexColors transparent opacity={0.9} sizeAttenuation depthWrite={false} />
+        <pointsMaterial size={0.11} vertexColors transparent opacity={0.9} sizeAttenuation depthWrite={false} blending={AdditiveBlending} />
       </points>
     </group>
   )
@@ -374,13 +427,17 @@ function DataSurface({ colors }: { colors: Color[] }) {
  */
 export default function GenerativeScene({ movement, quality }: SceneProps) {
   const pal = usePalette(movement)
-  const system = useStore((s) => s.instruments.generative.system)
+  const v = movement.visual.variant ?? 'lab'
+  // Each chamber owns its system; only the chamber being visited drives (and follows) the shared
+  // instrument, so neighbouring generative rooms mounted in the background never overwrite it.
+  const [own] = useState(() => VARIANT_SYSTEM[v] ?? pick(mulberry32(randomSeed()), GEN_SYSTEMS.filter((s) => s.id !== 'data' && s.id !== 'plotter')).id)
+  const active = useStore((s) => MOVEMENTS[s.activeIndex]?.id === movement.id)
+  const shared = useStore((s) => s.instruments.generative.system)
   const setInstrument = useStore((s) => s.setInstrument)
   useEffect(() => {
-    const v = movement.visual.variant ?? 'lab'
-    const def = VARIANT_SYSTEM[v] ?? pick(mulberry32(randomSeed()), GEN_SYSTEMS.filter((s) => s.id !== 'data' && s.id !== 'plotter')).id
-    setInstrument('generative', { system: def, seed: randomSeed() })
-  }, [movement, setInstrument])
+    if (active) setInstrument('generative', { system: own, seed: randomSeed() })
+  }, [active, own, setInstrument])
+  const system = active ? shared : own
   const kind = GEN_SYSTEMS.find((s) => s.id === system)?.kind ?? 'shader'
   const cols = useMemo(() => [pal.colors[0], pal.colors[1] ?? pal.ink, pal.colors[2] ?? pal.accent], [pal])
   return (
@@ -389,7 +446,8 @@ export default function GenerativeScene({ movement, quality }: SceneProps) {
         <planeGeometry args={[140, 80]} />
         <meshStandardMaterial color={pal.bg.clone().multiplyScalar(1.5)} roughness={0.6} metalness={0.2} />
       </mesh>
-      {kind !== '3d' && <Screen system={system} colors={cols} />}
+      {kind !== '3d' && <Screen system={system} colors={cols} immersive={v === 'reaction'} />}
+      {v === 'fractal' && system === 'fractal' && <Sierpinski colors={cols} />}
       {system === 'attractor' && <Attractor colors={cols} quality={quality} />}
       {system === 'lsystem' && <LSystem colors={cols} />}
       {system === 'plotter' && <Plotter ink={pal.ink.clone().lerp(new Color('#141414'), 0.9)} accent={pal.accent} />}

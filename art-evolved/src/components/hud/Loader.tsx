@@ -23,7 +23,7 @@ export function Loader({ done }: { done: boolean }) {
         {'█'.repeat(filled)}
         {'░'.repeat(24 - filled)}
       </div>
-      <div className="mt-3 font-sans text-[9px] uppercase tracking-museum text-muted">Calibrating the archive</div>
+      <div className="mt-3 font-sans text-[11px] uppercase tracking-museum text-muted">Calibrating the archive</div>
     </div>
   )
 }

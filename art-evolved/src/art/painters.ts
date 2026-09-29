@@ -16,11 +16,27 @@ function fill(ctx: CanvasRenderingContext2D, w: number, h: number, c: string) {
   ctx.fillRect(0, 0, w, h)
 }
 
+const GRAIN_LEVELS = 16
+
 function grain(ctx: CanvasRenderingContext2D, w: number, h: number, rng: Rng, amount = 0.06, count = 0) {
+  // Specks are bucketed by colour and quantised alpha and drawn as one path per bucket: a handful of
+  // fills instead of tens of thousands of fillStyle parses, which made texture painting a mount hitch.
   const n = count || Math.floor((w * h) / 40)
+  const buckets: number[][] = Array.from({ length: GRAIN_LEVELS * 2 }, () => [])
   for (let i = 0; i < n; i++) {
-    ctx.fillStyle = rng() > 0.5 ? `rgba(255,255,255,${amount * rng()})` : `rgba(0,0,0,${amount * rng()})`
-    ctx.fillRect(rng() * w, rng() * h, 1.5, 1.5)
+    const light = rng() > 0.5
+    const level = Math.min(GRAIN_LEVELS - 1, Math.floor(rng() * GRAIN_LEVELS))
+    buckets[(light ? GRAIN_LEVELS : 0) + level].push(rng() * w, rng() * h)
+  }
+  for (let b = 0; b < buckets.length; b++) {
+    const pts = buckets[b]
+    if (!pts.length) continue
+    const level = b % GRAIN_LEVELS
+    const alpha = (amount * (level + 0.5)) / GRAIN_LEVELS
+    ctx.fillStyle = b >= GRAIN_LEVELS ? `rgba(255,255,255,${alpha})` : `rgba(0,0,0,${alpha})`
+    ctx.beginPath()
+    for (let i = 0; i < pts.length; i += 2) ctx.rect(pts[i], pts[i + 1], 1.5, 1.5)
+    ctx.fill()
   }
 }
 

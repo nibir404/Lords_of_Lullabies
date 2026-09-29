@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { MOVEMENTS, MOVEMENT_BY_ID, CATEGORY_LABELS } from '@/data/movements'
 import { ARTIST_BY_ID } from '@/data/artists'
 import { formatSpan } from '@/data/eras'
+import { HISTORIES } from '@/data/histories'
 import { useStore } from '@/state/store'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
@@ -12,7 +13,7 @@ import { AIStages, Instruments } from './Instruments'
 function Section({ label, children }: { label: string; children: ReactNode }) {
   return (
     <section className="panel-section border-t border-fg/15 py-5">
-      <h3 className="panel-heading mb-3 font-sans text-[10px] font-medium uppercase tracking-museum text-muted">{label}</h3>
+      <h3 className="panel-heading t-eyebrow mb-3">{label}</h3>
       {children}
     </section>
   )
@@ -28,6 +29,7 @@ export function EraPanel() {
   if (!exploring) return null
   const m = MOVEMENTS[index]
   const v = m.visual
+  const h = HISTORIES[m.id]
   const after = MOVEMENTS.filter((x) => x.influencedBy.includes(m.id) || x.reactionTo?.includes(m.id))
   return (
     <aside
@@ -37,11 +39,11 @@ export function EraPanel() {
     >
       <div className="flex items-start justify-between gap-4 px-6 pb-4 pt-6">
         <div>
-          <div className="font-sans text-[9px] uppercase tracking-museum text-muted">
+          <div className="t-eyebrow">
             {CATEGORY_LABELS[m.category]} · {m.region}
           </div>
           <h2 className="panel-heading mt-2 font-sans text-[34px] font-semibold uppercase leading-[0.95] tracking-[-0.02em]">{m.name}</h2>
-          <div className="mt-2 font-mono text-[11px] text-fg/70">{formatSpan(m.startYear, m.endYear)}</div>
+          <div className="t-meta mt-2">{formatSpan(m.startYear, m.endYear)}</div>
         </div>
         <span className="panel-seal hidden h-9 w-9 shrink-0 bg-accent" aria-hidden />
         <Button variant="ghost" size="sm" onClick={() => setExploring(false)} aria-label="Close panel">
@@ -49,17 +51,38 @@ export function EraPanel() {
         </Button>
       </div>
       <ScrollArea className="min-h-0 flex-1 px-6">
-        <blockquote className="pb-6 font-serif text-[23px] italic leading-[1.25] text-fg/90">“{m.quote}”</blockquote>
+        <blockquote className="pb-6 font-serif text-[22px] italic leading-[1.3] text-fg">“{m.quote}”</blockquote>
+        {h && (
+          <>
+            <Section label="When it was born">
+              <p className="t-body font-medium text-fg">{h.born}</p>
+            </Section>
+            <Section label="Why it happened">
+              <p className="t-body">{h.why}</p>
+            </Section>
+            <Section label="How it began">
+              <p className="t-body">{h.birth}</p>
+              <p className="t-body mt-3 text-fg/75">{m.origin}</p>
+            </Section>
+            <Section label={h.pioneers.length > 1 ? 'Pioneers & inventors' : 'Pioneer'}>
+              <ul className="space-y-3">
+                {h.pioneers.map((p) => (
+                  <li key={p.name}>
+                    <div className="font-sans text-[16px] font-medium leading-snug text-fg">{p.name}</div>
+                    <div className="mt-0.5 font-sans text-[14px] leading-snug text-fg/75">{p.note}</div>
+                  </li>
+                ))}
+              </ul>
+            </Section>
+          </>
+        )}
         {v.instrument && <Instruments instrument={v.instrument} />}
         {v.scene === 'ai' && <AIStages movement={m} />}
-        <Section label="Origin">
-          <p className="font-sans text-[14px] leading-relaxed text-fg/85">{m.origin}</p>
-        </Section>
         <Section label="Key ideas">
           <ol className="space-y-2">
             {m.keyIdeas.map((k, i) => (
-              <li key={k} className="flex gap-3 font-sans text-[14px] leading-snug text-fg/85">
-                <span className="font-mono text-[10px] text-muted">{String(i + 1).padStart(2, '0')}</span>
+              <li key={k} className="t-body flex gap-3">
+                <span className="t-meta pt-0.5">{String(i + 1).padStart(2, '0')}</span>
                 {k}
               </li>
             ))}
@@ -73,24 +96,24 @@ export function EraPanel() {
           </div>
         </Section>
         <Section label="Technology">
-          <p className="font-sans text-[14px] leading-relaxed text-fg/85">{m.technology}</p>
+          <p className="t-body">{m.technology}</p>
         </Section>
         <Section label="Influence">
-          <p className="font-sans text-[14px] leading-relaxed text-fg/85">{m.influence}</p>
+          <p className="t-body">{m.influence}</p>
           {(m.influencedBy.length > 0 || after.length > 0) && (
             <div className="mt-4 grid grid-cols-2 gap-4">
               <div>
-                <div className="mb-2 font-sans text-[9px] uppercase tracking-museum text-muted">Drew from</div>
+                <div className="t-eyebrow mb-2">Drew from</div>
                 {m.influencedBy.map((id) => (
-                  <button key={id} onClick={() => goToMovement(id)} className="block py-0.5 text-left font-sans text-[12px] text-fg/80 underline-offset-4 hover:text-accent hover:underline">
+                  <button key={id} onClick={() => goToMovement(id)} className="block py-0.5 text-left font-sans text-[14px] text-fg underline decoration-fg/30 underline-offset-4 hover:text-accent hover:decoration-accent">
                     {MOVEMENT_BY_ID[id]?.name}
                   </button>
                 ))}
               </div>
               <div>
-                <div className="mb-2 font-sans text-[9px] uppercase tracking-museum text-muted">Led to</div>
+                <div className="t-eyebrow mb-2">Led to</div>
                 {after.map((x) => (
-                  <button key={x.id} onClick={() => goToMovement(x.id)} className="block py-0.5 text-left font-sans text-[12px] text-fg/80 underline-offset-4 hover:text-accent hover:underline">
+                  <button key={x.id} onClick={() => goToMovement(x.id)} className="block py-0.5 text-left font-sans text-[14px] text-fg underline decoration-fg/30 underline-offset-4 hover:text-accent hover:decoration-accent">
                     {x.name}
                   </button>
                 ))}
@@ -109,7 +132,7 @@ export function EraPanel() {
                   <li key={id}>
                     <button onClick={() => openArtist(id)} className="group flex w-full items-baseline justify-between py-2.5 text-left transition-[padding] duration-500 ease-museum hover:pl-2">
                       <span className="font-sans text-[15px] text-fg group-hover:text-accent">{a.name}</span>
-                      <span className="font-mono text-[10px] text-muted">{a.lifespan}</span>
+                      <span className="font-mono text-[11px] text-muted">{a.lifespan}</span>
                     </button>
                   </li>
                 )
@@ -118,7 +141,7 @@ export function EraPanel() {
           )}
         </Section>
         <Section label="Visual system · how this chamber is generated">
-          <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 font-mono text-[10px]">
+          <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 font-mono text-[11px]">
             {(
               [
                 ['scene', v.variant ? `${v.scene}/${v.variant}` : v.scene],

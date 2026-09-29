@@ -129,7 +129,7 @@ export function InfluenceGraph() {
           .map((n) => <NodeLabel key={n.id} node={n} dim={false} />)}
       {hover && (
         <Html position={[hover.x, hover.y + hover.size + 1.2, hover.z]} center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
-          <div className="whitespace-nowrap border border-fg/30 bg-panel px-3 py-1.5 font-sans text-[10px] uppercase tracking-museum text-fg">
+          <div className="whitespace-nowrap border border-fg/30 bg-panel px-3 py-1.5 font-sans text-[11px] uppercase tracking-museum text-fg">
             {hover.label} <span className="text-fg/50">· {hover.kind}</span>
           </div>
         </Html>

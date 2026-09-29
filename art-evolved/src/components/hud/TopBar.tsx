@@ -16,10 +16,11 @@ export function TopBar() {
   const setSearchOpen = useStore((s) => s.setSearchOpen)
   const m = MOVEMENTS[index]
   const label = view === 'timeline' ? m.name : view === 'create' ? 'Create' : VIEW_CONFIG[view].label
-  const era = view === 'timeline' ? ERA_BY_ID[m.eraId]?.name : 'ART//EVOLVED'
+  const eraName = ERA_BY_ID[m.eraId]?.name
+  const era = view === 'timeline' ? (eraName && eraName !== m.name ? eraName : `Chamber ${index + 1} of ${MOVEMENTS.length}`) : 'ART//EVOLVED'
 
   return (
-    <header className="hud-chrome pointer-events-none fixed inset-x-0 top-0 z-30 grid grid-cols-[1fr_auto_1fr] items-start gap-4 px-5 pt-5 md:px-10 md:pt-7">
+    <header className="hud-chrome hud-scrim-top pointer-events-none fixed inset-x-0 top-0 z-30 grid grid-cols-[1fr_auto_1fr] items-start gap-4 px-5 pt-5 md:px-10 md:pt-7">
       <button
         onClick={() => setView('landing')}
         className="hud-title hud-text pointer-events-auto justify-self-start font-sans text-[13px] font-semibold uppercase tracking-[0.28em] text-fg"
@@ -29,7 +30,7 @@ export function TopBar() {
       </button>
 
       <div className="hud-text text-center" aria-live="polite">
-        <div className="font-sans text-[9px] uppercase tracking-museum text-muted">{view === 'landing' ? 'The visual history of humanity' : era}</div>
+        <div className="t-eyebrow">{view === 'landing' ? 'The visual history of humanity' : era}</div>
         {view !== 'landing' && <ScrambleText text={label.toUpperCase()} className="hud-title mt-1 block font-sans text-[11px] font-medium uppercase tracking-museum text-fg" />}
       </div>
 
@@ -37,7 +38,7 @@ export function TopBar() {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="ghost" size="sm" onClick={() => setSearchOpen(true)} aria-label="Search the archive">
-              Search <kbd className="hidden font-mono text-[9px] text-muted md:inline">⌘K</kbd>
+              Search <kbd className="hidden font-mono text-[11px] text-muted md:inline">⌘K</kbd>
             </Button>
           </TooltipTrigger>
           <TooltipContent>Movements, artists, ideas</TooltipContent>

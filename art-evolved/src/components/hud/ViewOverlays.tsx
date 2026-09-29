@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils'
 function Heading({ kicker, title, children }: { kicker: string; title: string; children?: ReactNode }) {
   return (
     <div className="pointer-events-none fixed left-5 top-24 z-20 max-w-[min(420px,80vw)] md:left-10 md:top-28">
-      <div className="font-sans text-[10px] uppercase tracking-museum text-muted">{kicker}</div>
+      <div className="font-sans text-[11px] uppercase tracking-museum text-muted">{kicker}</div>
       <h1 className="mt-3 font-sans text-[clamp(34px,4.6vw,64px)] font-semibold uppercase leading-[0.9] tracking-[-0.03em] text-fg">{title}</h1>
       {children}
     </div>
@@ -65,12 +65,12 @@ export function EvolutionOverlay() {
         </Tabs>
         <div className="grid grid-cols-[auto_1fr_auto] items-center gap-5">
           <button className="text-left" onClick={() => setSlider('evolution', 0)}>
-            <div className="font-mono text-[9px] text-muted">{MOVEMENT_BY_ID[pair.from.movement].startYear}</div>
+            <div className="font-mono text-[11px] text-muted">{MOVEMENT_BY_ID[pair.from.movement].startYear}</div>
             <div className="font-sans text-[clamp(16px,2vw,26px)] font-semibold uppercase tracking-[-0.01em]">{pair.from.label}</div>
           </button>
           <Slider value={[value]} min={0} max={1} step={0.001} onValueChange={([v]) => setSlider('evolution', v)} thumbLabel={`Transform ${pair.from.label} into ${pair.to.label}`} />
           <button className="text-right" onClick={() => setSlider('evolution', 1)}>
-            <div className="font-mono text-[9px] text-muted">{MOVEMENT_BY_ID[pair.to.movement].startYear}</div>
+            <div className="font-mono text-[11px] text-muted">{MOVEMENT_BY_ID[pair.to.movement].startYear}</div>
             <div className="font-sans text-[clamp(16px,2vw,26px)] font-semibold uppercase tracking-[-0.01em]">{pair.to.label}</div>
           </button>
         </div>
@@ -78,7 +78,7 @@ export function EvolutionOverlay() {
           <span className="font-serif text-[18px] italic text-fg/85" aria-live="polite">
             {stage}
           </span>
-          <span className="font-mono text-[10px] text-muted">{Math.round(value * 100)}% · drag · scroll · ← →</span>
+          <span className="font-mono text-[11px] text-muted">{Math.round(value * 100)}% · drag · scroll · ← →</span>
         </div>
       </Dock>
     </>
@@ -107,9 +107,9 @@ export function MorphOverlay() {
               role="radio"
               aria-checked={k === i}
               onClick={() => setSlider('morph', k / (TREE_STYLES.length - 1))}
-              className={cn('border-t py-2 text-left font-sans text-[9px] uppercase tracking-[0.14em] transition-colors duration-500', k === i ? 'border-accent text-fg' : 'border-fg/15 text-fg/45 hover:text-fg')}
+              className={cn('border-t py-2 text-left font-sans text-[11px] uppercase tracking-[0.14em] transition-colors duration-500', k === i ? 'border-accent text-fg' : 'border-fg/15 text-fg/45 hover:text-fg')}
             >
-              <span className="block font-mono text-[9px] text-muted">{String(k + 1).padStart(2, '0')}</span>
+              <span className="block font-mono text-[11px] text-muted">{String(k + 1).padStart(2, '0')}</span>
               {s.label}
             </button>
           ))}
@@ -152,7 +152,7 @@ export function MediaOverlay() {
         </Tabs>
         <div className="mb-3 flex justify-between gap-1 overflow-hidden" aria-hidden>
           {list.map((m, k) => (
-            <button key={m.id} onClick={() => setSlider('media', k / (list.length - 1))} className={cn('truncate font-sans text-[8px] uppercase tracking-[0.1em] transition-colors', k === i ? 'text-fg' : 'text-fg/35 hover:text-fg')}>
+            <button key={m.id} onClick={() => setSlider('media', k / (list.length - 1))} className={cn('truncate font-sans text-[11px] uppercase tracking-[0.1em] transition-colors', k === i ? 'text-fg' : 'text-fg/35 hover:text-fg')}>
               {m.name}
             </button>
           ))}
@@ -191,7 +191,7 @@ export function MapOverlay() {
         <p className="mt-4 font-serif text-[19px] italic leading-snug text-fg/80">Drag to rotate the network · scroll to zoom · select a node.</p>
       </Heading>
       <div className="museum-panel fixed bottom-6 left-5 z-30 w-[260px] px-5 py-4 md:left-10">
-        <div className="mb-3 font-sans text-[9px] uppercase tracking-museum text-muted">Connections</div>
+        <div className="mb-3 font-sans text-[11px] uppercase tracking-museum text-muted">Connections</div>
         <ul className="space-y-1.5">
           {(Object.keys(RELATION_LABELS) as RelationType[]).map((t) => (
             <li key={t}>
@@ -202,7 +202,7 @@ export function MapOverlay() {
             </li>
           ))}
         </ul>
-        <div className="mt-4 grid grid-cols-3 gap-2 font-sans text-[9px] uppercase tracking-[0.12em] text-fg/70">
+        <div className="mt-4 grid grid-cols-3 gap-2 font-sans text-[11px] uppercase tracking-[0.12em] text-fg/70">
           <span>◆ Movement</span>
           <span>● Artist</span>
           <span>■ Technology</span>
@@ -211,7 +211,7 @@ export function MapOverlay() {
       {node && (
         <aside className="museum-panel animate-sheet-in-right fixed bottom-6 right-4 top-24 z-30 flex w-[min(360px,calc(100vw-32px))] flex-col md:right-10">
           <div className="px-6 pt-6">
-            <div className="font-sans text-[9px] uppercase tracking-museum text-muted">{node.kind}</div>
+            <div className="font-sans text-[11px] uppercase tracking-museum text-muted">{node.kind}</div>
             <h2 className="mt-2 font-sans text-[28px] font-semibold uppercase leading-none tracking-[-0.02em]">{node.label}</h2>
             <div className="mt-4 flex gap-2">
               {node.kind === 'movement' && (
@@ -235,13 +235,13 @@ export function MapOverlay() {
               if (!items.length) return null
               return (
                 <div key={t} className="border-t border-fg/15 py-3">
-                  <div className="mb-2 flex items-center gap-2 font-sans text-[9px] uppercase tracking-museum" style={{ color: RELATION_COLORS[t] }}>
+                  <div className="mb-2 flex items-center gap-2 font-sans text-[11px] uppercase tracking-museum" style={{ color: RELATION_COLORS[t] }}>
                     {RELATION_LABELS[t]}
                   </div>
                   {items.map((r) => (
                     <button key={r.other.id + r.type} onClick={() => select(r.other.id)} className="flex w-full items-baseline justify-between py-1 text-left font-sans text-[13px] text-fg/85 hover:text-accent">
                       <span>{r.other.label}</span>
-                      <span className="font-mono text-[9px] text-muted">{r.outgoing ? '→' : '←'}</span>
+                      <span className="font-mono text-[11px] text-muted">{r.outgoing ? '→' : '←'}</span>
                     </button>
                   ))}
                 </div>
@@ -260,7 +260,7 @@ export function FinaleOverlay() {
   const stage = useWorldValue(() => Math.round(world.autoStage.finale ?? 0) % FINALE_STAGES.length, 4)
   return (
     <section className="pointer-events-none fixed inset-0 z-20 flex flex-col items-center justify-end px-6 pb-16 text-center" aria-labelledby="finale-title">
-      <div className="font-mono text-[10px] uppercase tracking-museum text-muted">{FINALE_STAGES[stage]}</div>
+      <div className="font-mono text-[11px] uppercase tracking-museum text-muted">{FINALE_STAGES[stage]}</div>
       <h1 id="finale-title" className="mt-5 max-w-[16ch] animate-rise font-sans text-[clamp(40px,7vw,104px)] font-semibold uppercase leading-[0.88] tracking-[-0.035em] text-fg">
         Art never stopped evolving.
       </h1>

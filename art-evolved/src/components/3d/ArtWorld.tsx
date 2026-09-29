@@ -28,6 +28,10 @@ export default function ArtWorld() {
       frameloop={view === 'create' ? 'never' : 'always'}
       gl={{ antialias: true, powerPreference: 'high-performance', alpha: false, stencil: false }}
       camera={{ fov: 50, near: 0.1, far: 700, position: VIEW_CONFIG.landing.pos }}
+      onCreated={({ gl }) => {
+        // Error checks force a synchronous wait on every shader link; only worth it while developing.
+        gl.debug.checkShaderErrors = import.meta.env.DEV
+      }}
       aria-label="ART//EVOLVED — an explorable 3D museum of visual history"
       role="img"
     >

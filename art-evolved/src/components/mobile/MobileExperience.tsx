@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { MOVEMENTS, CATEGORY_LABELS } from '@/data/movements'
 import { ARTIST_BY_ID } from '@/data/artists'
 import { ERAS, formatSpan } from '@/data/eras'
+import { HISTORIES } from '@/data/histories'
 import { useStore } from '@/state/store'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -9,11 +10,12 @@ import { ProceduralCanvas } from '@/components/hud/ProceduralCanvas'
 
 function Chamber({ index }: { index: number }) {
   const m = MOVEMENTS[index]
+  const h = HISTORIES[m.id]
   const [seed, setSeed] = useState(0)
   const openArtist = useStore((s) => s.openArtist)
   return (
     <article id={`m-${m.id}`} data-index={index} className="scroll-mt-16 border-t border-fg/15 pb-14 pt-6" aria-labelledby={`t-${m.id}`}>
-      <div className="flex items-baseline justify-between px-5 font-mono text-[10px] text-muted">
+      <div className="flex items-baseline justify-between px-5 font-mono text-[11px] text-muted">
         <span>
           {String(index + 1).padStart(2, '0')} / {MOVEMENTS.length}
         </span>
@@ -21,21 +23,48 @@ function Chamber({ index }: { index: number }) {
       </div>
       <button className="relative mt-3 block aspect-[4/3] w-full overflow-hidden" onClick={() => setSeed((s) => s + 1)} aria-label={`Regenerate the ${m.name} artwork`}>
         <ProceduralCanvas key={seed} movement={m} seed={`${m.id}-m-${seed}`} width={720} height={540} />
-        <span className="absolute bottom-2 right-3 bg-bg/80 px-2 py-1 font-mono text-[9px] uppercase tracking-museum text-fg/70">Tap to regenerate</span>
+        <span className="absolute bottom-2 right-3 bg-bg/90 px-2 py-1 font-mono text-[11px] uppercase tracking-museum text-fg">Tap to regenerate</span>
       </button>
       <div className="px-5">
-        <div className="mt-5 font-sans text-[9px] uppercase tracking-museum text-muted">
+        <div className="mt-5 font-sans text-[11px] uppercase tracking-museum text-muted">
           {CATEGORY_LABELS[m.category]} · {m.region}
         </div>
         <h2 id={`t-${m.id}`} className="hud-era-name panel-heading mt-2 font-sans text-[40px] font-semibold uppercase leading-[0.92] tracking-[-0.02em]">
           {m.name}
         </h2>
-        <blockquote className="mt-4 font-serif text-[22px] italic leading-snug text-fg/85">“{m.quote}”</blockquote>
-        <p className="mt-4 font-sans text-[15px] leading-relaxed text-fg/80">{m.origin}</p>
+        <blockquote className="mt-4 font-serif text-[22px] italic leading-snug text-fg">“{m.quote}”</blockquote>
+        {h && (
+          <dl className="mt-5 space-y-4 border-t border-fg/15 pt-4">
+            <div>
+              <dt className="t-eyebrow">When it was born</dt>
+              <dd className="t-body mt-1 font-medium text-fg">{h.born}</dd>
+            </div>
+            <div>
+              <dt className="t-eyebrow">Why it happened</dt>
+              <dd className="t-body mt-1">{h.why}</dd>
+            </div>
+            <div>
+              <dt className="t-eyebrow">How it began</dt>
+              <dd className="t-body mt-1">{h.birth}</dd>
+            </div>
+            <div>
+              <dt className="t-eyebrow">Pioneers & inventors</dt>
+              <dd className="mt-1 space-y-2">
+                {h.pioneers.map((p) => (
+                  <div key={p.name}>
+                    <div className="font-sans text-[16px] font-medium text-fg">{p.name}</div>
+                    <div className="font-sans text-[14px] leading-snug text-fg/75">{p.note}</div>
+                  </div>
+                ))}
+              </dd>
+            </div>
+          </dl>
+        )}
+        <p className="t-body mt-5">{m.origin}</p>
         <ol className="mt-5 space-y-1.5">
           {m.keyIdeas.map((k, i) => (
-            <li key={k} className="flex gap-3 font-sans text-[14px] text-fg/85">
-              <span className="font-mono text-[10px] text-muted">{String(i + 1).padStart(2, '0')}</span>
+            <li key={k} className="flex gap-3 font-sans text-[15px] text-fg/85">
+              <span className="font-mono text-[11px] text-muted">{String(i + 1).padStart(2, '0')}</span>
               {k}
             </li>
           ))}
@@ -47,10 +76,10 @@ function Chamber({ index }: { index: number }) {
         </div>
         {m.artists.length > 0 && (
           <div className="mt-6">
-            <div className="mb-2 font-sans text-[9px] uppercase tracking-museum text-muted">Artists</div>
+            <div className="mb-2 font-sans text-[11px] uppercase tracking-museum text-muted">Artists</div>
             <div className="flex flex-wrap gap-x-4 gap-y-1">
               {m.artists.map((id) => (
-                <button key={id} onClick={() => openArtist(id)} className="font-sans text-[14px] text-fg underline decoration-fg/30 underline-offset-4">
+                <button key={id} onClick={() => openArtist(id)} className="font-sans text-[15px] text-fg underline decoration-fg/30 underline-offset-4">
                   {ARTIST_BY_ID[id].name}
                 </button>
               ))}
@@ -100,7 +129,7 @@ export default function MobileExperience({ fallback }: { fallback?: boolean }) {
         <span className="hud-title font-sans text-[12px] font-semibold uppercase tracking-[0.26em]">
           ART<span className="text-accent">//</span>EVOLVED
         </span>
-        <span className="truncate px-2 font-sans text-[9px] uppercase tracking-museum text-muted">{m.name}</span>
+        <span className="truncate px-2 font-sans text-[11px] uppercase tracking-museum text-muted">{m.name}</span>
         <div className="flex gap-1">
           <Button variant="ghost" size="sm" onClick={() => setSearchOpen(true)}>
             Search
@@ -111,7 +140,7 @@ export default function MobileExperience({ fallback }: { fallback?: boolean }) {
         </div>
       </header>
       <section className="px-5 pb-16 pt-14" aria-labelledby="m-hero">
-        <p className="font-sans text-[10px] uppercase tracking-museum text-muted">The visual history of humanity</p>
+        <p className="font-sans text-[11px] uppercase tracking-museum text-muted">The visual history of humanity</p>
         <h1 id="m-hero" className="mt-4 font-sans text-[72px] font-semibold leading-[0.84] tracking-[-0.045em]">
           ART<span className="text-accent">//</span>
           <br />
@@ -134,7 +163,7 @@ export default function MobileExperience({ fallback }: { fallback?: boolean }) {
           if (!items.length) return null
           return (
             <section key={era.id} aria-label={era.name}>
-              <h2 className="sticky top-[49px] z-20 bg-bg/90 px-5 py-2 font-sans text-[10px] uppercase tracking-museum text-fg backdrop-blur-sm">
+              <h2 className="sticky top-[49px] z-20 bg-bg/90 px-5 py-2 font-sans text-[11px] uppercase tracking-museum text-fg backdrop-blur-sm">
                 {era.name} <span className="font-mono text-muted">· {formatSpan(era.startYear, era.endYear)}</span>
               </h2>
               {items.map(({ i }) => (

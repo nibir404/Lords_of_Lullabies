@@ -15,9 +15,9 @@ import { cn } from '@/lib/utils'
 function Control({ label, value, min, max, step, onChange, format }: { label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void; format?: (v: number) => string }) {
   return (
     <div className="grid grid-cols-[96px_1fr_44px] items-center gap-3">
-      <span className="font-sans text-[9px] uppercase tracking-museum text-muted">{label}</span>
+      <span className="font-sans text-[11px] uppercase tracking-museum text-muted">{label}</span>
       <Slider value={[value]} min={min} max={max} step={step} onValueChange={([v]) => onChange(v)} thumbLabel={label} />
-      <span className="text-right font-mono text-[10px] tabular-nums text-fg/80">{format ? format(value) : value.toFixed(2)}</span>
+      <span className="text-right font-mono text-[11px] tabular-nums text-fg/80">{format ? format(value) : value.toFixed(2)}</span>
     </div>
   )
 }
@@ -26,7 +26,7 @@ function Frame({ title, children, onReset }: { title: string; children: ReactNod
   return (
     <div className="panel-section border-t border-fg/15 py-5">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="panel-heading font-sans text-[10px] font-medium uppercase tracking-museum text-accent">{title}</h3>
+        <h3 className="panel-heading font-sans text-[11px] font-medium uppercase tracking-museum text-accent">{title}</h3>
         {onReset && (
           <Button variant="ghost" size="sm" onClick={onReset}>
             Reset
@@ -80,7 +80,7 @@ export function Instruments({ instrument }: { instrument: Instrument }) {
       return (
         <Frame title="Instrument · ASCII renderer" onReset={() => reset('ascii')}>
           <div className="grid grid-cols-[96px_1fr] items-center gap-3">
-            <span className="font-sans text-[9px] uppercase tracking-museum text-muted">Character set</span>
+            <span className="font-sans text-[11px] uppercase tracking-museum text-muted">Character set</span>
             <Tabs value={String(a.charset)} onValueChange={(v) => p({ charset: Number(v) })}>
               <TabsList className="gap-3">
                 {CHARSETS.map((c, i) => (
@@ -105,7 +105,7 @@ export function Instruments({ instrument }: { instrument: Instrument }) {
       const p = patch('dither')
       return (
         <Frame title="Instrument · Dither engine" onReset={() => reset('dither')}>
-          <div className="flex justify-between font-sans text-[8px] uppercase tracking-[0.14em] text-muted" aria-hidden>
+          <div className="flex justify-between font-sans text-[11px] uppercase tracking-[0.14em] text-muted" aria-hidden>
             {DITHER_STAGES.map((s, i) => (
               <span key={s} className={cn(Math.round(a.stage) === i && 'text-accent')}>
                 {s}
@@ -115,7 +115,7 @@ export function Instruments({ instrument }: { instrument: Instrument }) {
           <Slider value={[a.stage]} min={0} max={4} step={0.01} onValueChange={([v]) => p({ stage: v })} thumbLabel="Dither stage" />
           <Control label="Threshold" value={a.threshold} min={0.1} max={0.9} step={0.01} onChange={(v) => p({ threshold: v })} />
           <div className="grid grid-cols-[96px_1fr] items-center gap-3">
-            <span className="font-sans text-[9px] uppercase tracking-museum text-muted">Pattern</span>
+            <span className="font-sans text-[11px] uppercase tracking-museum text-muted">Pattern</span>
             <Tabs value={String(a.pattern)} onValueChange={(v) => p({ pattern: Number(v) })}>
               <TabsList>
                 <TabsTrigger value="0">Bayer 8×8</TabsTrigger>
@@ -150,14 +150,14 @@ export function Instruments({ instrument }: { instrument: Instrument }) {
                 role="radio"
                 aria-checked={a.system === s.id}
                 onClick={() => p({ system: s.id })}
-                className={cn('border px-2 py-1.5 text-left font-sans text-[9px] uppercase tracking-[0.12em] transition-colors duration-300', a.system === s.id ? 'border-fg bg-fg text-bg' : 'border-fg/15 text-fg/70 hover:border-fg/50')}
+                className={cn('border px-2 py-1.5 text-left font-sans text-[11px] uppercase tracking-[0.12em] transition-colors duration-300', a.system === s.id ? 'border-fg bg-fg text-bg' : 'border-fg/15 text-fg/70 hover:border-fg/50')}
               >
                 {s.label}
               </button>
             ))}
           </div>
           {sys && <p className="font-serif text-[15px] italic leading-snug text-fg/75">{sys.note}</p>}
-          <div className="flex items-center justify-between border border-fg/15 px-3 py-2 font-mono text-[10px]">
+          <div className="flex items-center justify-between border border-fg/15 px-3 py-2 font-mono text-[11px]">
             <span className="text-muted">SEED</span>
             <span className="tabular-nums">{a.seed}</span>
             <Button variant="ghost" size="sm" onClick={() => p({ seed: randomSeed() })}>
@@ -185,7 +185,7 @@ export function AIStages({ movement }: { movement: Movement }) {
       <ol className="space-y-1.5">
         {AI_STAGES.map((s, i) => (
           <li key={s} className={cn('flex items-baseline gap-3 font-sans text-[11px] uppercase tracking-[0.14em] transition-colors duration-500', i === stage ? 'text-fg' : 'text-fg/35')}>
-            <span className="font-mono text-[9px]">{String(i + 1).padStart(2, '0')}</span>
+            <span className="font-mono text-[11px]">{String(i + 1).padStart(2, '0')}</span>
             {s}
             {i === stage && <span className="ml-auto h-px w-10 bg-accent" />}
           </li>

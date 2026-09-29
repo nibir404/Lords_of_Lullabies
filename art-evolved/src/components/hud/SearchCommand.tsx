@@ -63,7 +63,7 @@ export function SearchCommand() {
                   }
                 >
                   <span>{e.label}</span>
-                  <span className="truncate font-mono text-[10px] opacity-60">{e.hint}</span>
+                  <span className="truncate font-mono text-[11px] opacity-60">{e.hint}</span>
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -82,7 +82,7 @@ export function SearchCommand() {
                   }
                 >
                   <span>{e.label}</span>
-                  <span className="font-mono text-[10px] opacity-60">{e.hint}</span>
+                  <span className="font-mono text-[11px] opacity-60">{e.hint}</span>
                 </CommandItem>
               ))}
             </CommandGroup>

@@ -202,7 +202,7 @@ export default function CreateStudio() {
     <div className="fixed inset-0 z-[35] flex flex-col bg-[#0d0d0f] text-[#f2efe8] md:flex-row" role="dialog" aria-label="Create — generative playground">
       <div ref={wrapRef} className="relative min-h-0 flex-1" style={{ background: palette.bg }}>
         <canvas ref={canvasRef} width={size.w} height={size.h} className="absolute inset-0 h-full w-full" role="img" aria-label={`Generative composition, seed ${params.seed}`} />
-        <div className="pointer-events-none absolute left-5 top-5 bg-[#0d0d0f]/80 px-3 py-2 font-mono text-[10px] uppercase tracking-museum text-[#f2efe8]/80 md:left-8 md:top-8">
+        <div className="pointer-events-none absolute left-5 top-5 bg-[#0d0d0f]/80 px-3 py-2 font-mono text-[11px] uppercase tracking-museum text-[#f2efe8]/80 md:left-8 md:top-8">
           Seed {params.seed} · {FORMS[Math.round(params.form * (FORMS.length - 1))]} · {palette.name}
         </div>
       </div>
@@ -211,7 +211,7 @@ export default function CreateStudio() {
           <div className="px-7 py-7">
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-sans text-[9px] uppercase tracking-museum text-white/50">Generative mode</div>
+                <div className="font-sans text-[11px] uppercase tracking-museum text-white/50">Generative mode</div>
                 <h2 className="mt-1 font-sans text-3xl font-semibold uppercase tracking-[-0.02em]">Create</h2>
               </div>
               <Button variant="outline" size="sm" onClick={() => setView('timeline')} className="border-white/30 text-[#f2efe8] hover:bg-[#f2efe8] hover:text-[#0d0d0f]">
@@ -223,9 +223,9 @@ export default function CreateStudio() {
             <div className="space-y-4">
               {CONTROLS.map((c) => (
                 <div key={c.key} className="grid grid-cols-[84px_1fr_62px] items-center gap-3">
-                  <span className="font-sans text-[9px] uppercase tracking-museum text-white/55">{c.label}</span>
+                  <span className="font-sans text-[11px] uppercase tracking-museum text-white/55">{c.label}</span>
                   <Slider value={[params[c.key]]} min={0} max={1} step={0.01} onValueChange={([v]) => set(c.key, v)} thumbLabel={c.label} className="[&_.bg-fg]:bg-[#f2efe8] [&_.bg-fg\/25]:bg-white/25" />
-                  <span className="truncate text-right font-mono text-[10px] text-white/75">{c.format ? c.format(params[c.key]) : params[c.key].toFixed(2)}</span>
+                  <span className="truncate text-right font-mono text-[11px] text-white/75">{c.format ? c.format(params[c.key]) : params[c.key].toFixed(2)}</span>
                 </div>
               ))}
             </div>
@@ -244,7 +244,7 @@ export default function CreateStudio() {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent align="end" className="w-56 border-white/20 bg-[#16161a] text-[#f2efe8]">
-                  <div className="mb-3 font-sans text-[9px] uppercase tracking-museum text-white/50">Export composition</div>
+                  <div className="mb-3 font-sans text-[11px] uppercase tracking-museum text-white/50">Export composition</div>
                   <div className="grid gap-2">
                     <Button variant="outline" size="sm" onClick={exportPNG} className="border-white/30 text-[#f2efe8]">
                       Canvas · PNG
@@ -253,7 +253,7 @@ export default function CreateStudio() {
                       Vector · SVG
                     </Button>
                   </div>
-                  <p className="mt-3 font-mono text-[9px] leading-relaxed text-white/45">SVG keeps the vector paths; dither and pixelation are raster effects and appear in the PNG.</p>
+                  <p className="mt-3 font-mono text-[11px] leading-relaxed text-white/45">SVG keeps the vector paths; dither and pixelation are raster effects and appear in the PNG.</p>
                 </PopoverContent>
               </Popover>
             </div>
